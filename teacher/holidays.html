@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holidays — Teacher</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <a href="dashboard.html" class="sidebar-logo">
+                <div class="logo-icon">🏫</div>
+                <div class="logo-text">
+                    <h2>EduManage Pro</h2><span>Teacher Portal</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Dashboard</div>
+                    <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span>Dashboard</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Class Management</div>
+                    <a href="attendance.html" class="nav-item"><span class="nav-icon">📋</span>Mark Attendance</a>
+                    <a href="students.html" class="nav-item"><span class="nav-icon">👩‍🎓</span>My Students</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Resources</div>
+                    <a href="materials.html" class="nav-item"><span class="nav-icon">📚</span>Study Materials</a>
+                    <a href="holidays.html" class="nav-item active"><span class="nav-icon">📅</span>Holidays</a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user"><span id="sidebarAvatar" class="avatar cyan">T</span>
+                    <div class="user-info">
+                        <div class="user-name" id="sidebarUserName">Teacher</div>
+                        <div class="user-role" id="sidebarUserRole">teacher</div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <div class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="menu-toggle" id="menuToggle">☰</button>
+                    <div>
+                        <div class="page-title">School Holidays</div>
+                        <div class="page-subtitle" id="topbarDate"></div>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <select id="yearFilter" class="form-control" onchange="loadHolidays()" style="width:auto">
+                        <option value="2025">2025</option>
+                        <option value="2026" selected>2026</option>
+                        <option value="2027">2027</option>
+                    </select>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>📅 Holiday Calendar</h3>
+                        <span id="holidayCount" class="badge badge-primary">0 holidays</span>
+                    </div>
+                    <div class="card-body" id="holidaysList">
+                        <div class="text-center text-muted" style="padding:40px">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await checkAuth('teacher');
+            if (!user) return;
+            loadHolidays();
+        });
+
+        async function loadHolidays() {
+            const year = document.getElementById('yearFilter').value;
+            const res = await API.get(`/api/holidays?year=${year}`);
+            const el = document.getElementById('holidaysList');
+            document.getElementById('holidayCount').textContent = `${res.data ? res.data.length : 0} holidays`;
+
+            if (!res.success || !res.data || !res.data.length) {
+                el.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><h4>No holidays found for this year</h4></div>';
+                return;
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+            el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px">
+            ${res.data.map(h => {
+                const isPast = h.date < today;
+                const isToday = h.date === today;
+                const borderColor = isToday ? '#f59e0b' : isPast ? '#e2e8f0' : '#22c55e';
+                const bgColor = isToday ? '#fef9c3' : isPast ? '#f8fafc' : '#f0fdf4';
+                const badge = isToday ? '<span class="badge badge-warning">Today!</span>' : isPast ? '<span class="badge">Past</span>' : '<span class="badge badge-success">Upcoming</span>';
+                return `<div style="border:1.5px solid ${borderColor};border-radius:12px;padding:18px;background:${bgColor}">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+                        <strong style="font-size:15px;color:#1e293b">${h.title}</strong>
+                        ${badge}
+                    </div>
+                    <div style="font-size:13px;color:#64748b;margin-bottom:6px">📅 ${formatDate(h.date)}</div>
+                    ${h.description ? `<div style="font-size:12px;color:#94a3b8">${h.description}</div>` : ''}
+                </div>`;
+            }).join('')}
+        </div>`;
+        }
+    </script>
+</body>
+
+</html>

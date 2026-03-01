@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Students — Teacher</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <a href="dashboard.html" class="sidebar-logo">
+                <div class="logo-icon">🏫</div>
+                <div class="logo-text">
+                    <h2>EduManage Pro</h2><span>Teacher Portal</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Dashboard</div><a href="dashboard.html" class="nav-item"><span
+                            class="nav-icon">📊</span>Dashboard</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Class Management</div>
+                    <a href="attendance.html" class="nav-item"><span class="nav-icon">📋</span>Mark Attendance</a>
+                    <a href="students.html" class="nav-item active"><span class="nav-icon">👩‍🎓</span>My Students</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Resources</div>
+                    <a href="materials.html" class="nav-item"><span class="nav-icon">📚</span>Study Materials</a>
+                    <a href="holidays.html" class="nav-item"><span class="nav-icon">📅</span>Holidays</a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user"><span id="sidebarAvatar" class="avatar cyan">T</span>
+                    <div class="user-info">
+                        <div class="user-name" id="sidebarUserName">Teacher</div>
+                        <div class="user-role" id="sidebarUserRole">teacher</div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <div class="main-content">
+            <header class="topbar">
+                <div class="topbar-left"><button class="menu-toggle" id="menuToggle">☰</button>
+                    <div>
+                        <div class="page-title">My Students</div>
+                        <div class="page-subtitle" id="topbarDate"></div>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <select id="classSelect" class="form-control" style="width:auto" onchange="loadStudents()">
+                        <option value="">All Classes</option>
+                    </select>
+                </div>
+            </header>
+            <div class="page-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>👩‍🎓 Class Students</h3>
+                        <div class="search-input"><span class="search-icon">🔍</span><input type="text" id="searchInput"
+                                placeholder="Search student..."></div>
+                    </div>
+                    <div class="table-container">
+                        <table class="table" id="studentsTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Student</th>
+                                    <th>Roll No.</th>
+                                    <th>Class</th>
+                                    <th>Parent</th>
+                                    <th>Phone</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsBody">
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="empty-state">
+                                            <div class="empty-icon">👩‍🎓</div>
+                                            <h4>Select a class to view students</h4>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await checkAuth('teacher');
+            if (!user) return;
+            const res = await API.get('/api/teacher/classes');
+            if (res.success) { res.data.forEach(c => { document.getElementById('classSelect').innerHTML += `<option value="${c.id}">${c.name} | ${c.board} | ${c.medium}</option>`; }); }
+            initSearch('searchInput', 'studentsTable');
+        });
+
+        async function loadStudents() {
+            const classId = document.getElementById('classSelect').value;
+            const url = classId ? `/api/teacher/students?class_id=${classId}` : '/api/teacher/students?class_id=-1';
+            const res = await API.get(url);
+            if (!res.success) return;
+            const tbody = document.getElementById('studentsBody');
+            if (!res.data.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">👩‍🎓</div><h4>No students found</h4></div></td></tr>'; return; }
+            tbody.innerHTML = res.data.map((s, i) => `
+        <tr>
+            <td>${i + 1}</td>
+            <td><div class="flex items-center gap-1">${getAvatar(s.name, 'blue')}<div><strong>${s.name}</strong><div class="text-sm text-muted">${s.email}</div></div></div></td>
+            <td>${s.roll_no || '—'}</td>
+            <td>${s.class_name || '—'}</td>
+            <td>${s.parent_name || '—'}</td>
+            <td>${s.phone || '—'}</td>
+        </tr>
+    `).join('');
+        }
+    </script>
+</body>
+
+</html>

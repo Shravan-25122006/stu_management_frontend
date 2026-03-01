@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holidays — Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <style>
+        /* ── Year Calendar Grid ─────────────────────────────── */
+        .year-calendar {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .month-card {
+            background: #fff;
+            border-radius: 14px;
+            border: 1.5px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .month-card-header {
+            background: linear-gradient(135deg, #1e3a8a, #3b5fc0);
+            color: #fff;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            padding: 8px;
+            gap: 2px;
+        }
+
+        .cal-cell {
+            text-align: center;
+            font-size: 11px;
+            padding: 4px 2px;
+            border-radius: 5px;
+            cursor: default;
+            position: relative;
+        }
+
+        .cal-cell.hdr {
+            font-weight: 700;
+            color: #94a3b8;
+            font-size: 10px;
+        }
+
+        .cal-cell.today {
+            background: var(--primary);
+            color: #fff;
+            font-weight: 700;
+            border-radius: 50%;
+        }
+
+        .cal-cell.holiday {
+            background: #fee2e2;
+            color: #dc2626;
+            font-weight: 700;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .cal-cell.holiday.national {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .cal-cell.holiday.school {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .cal-cell.holiday.religious {
+            background: #fef9c3;
+            color: #92400e;
+        }
+
+        .cal-cell.sunday {
+            color: #f87171;
+        }
+
+        .cal-cell:hover.holiday {
+            transform: scale(1.15);
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* ── Holiday List ───────────────────────────────────── */
+        .hol-type-national {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .hol-type-religious {
+            background: #fef9c3;
+            color: #92400e;
+        }
+
+        .hol-type-school {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .hol-type-other {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 12px;
+            margin-bottom: 16px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        /* Month tabs */
+        .month-tabs {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .month-tab {
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1.5px solid #e2e8f0;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #fff;
+            color: #475569;
+            transition: all 0.2s;
+        }
+
+        .month-tab.active,
+        .month-tab:hover {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <a href="dashboard.html" class="sidebar-logo">
+                <div class="logo-icon">🏫</div>
+                <div class="logo-text">
+                    <h2>EduManage Pro</h2><span>Admin Panel</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span>Dashboard</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Management</div>
+                    <a href="students.html" class="nav-item"><span class="nav-icon">👩‍🎓</span>Students</a>
+                    <a href="teachers.html" class="nav-item"><span class="nav-icon">👨‍🏫</span>Teachers</a>
+                    <a href="classes.html" class="nav-item"><span class="nav-icon">🏛️</span>Classes &amp; Subjects</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Academics</div>
+                    <a href="attendance.html" class="nav-item"><span class="nav-icon">📋</span>Attendance Reports</a>
+                    <a href="materials.html" class="nav-item"><span class="nav-icon">📚</span>Study Materials</a>
+                    <a href="fees.html" class="nav-item"><span class="nav-icon">💰</span>Fees Management</a>
+                    <a href="holidays.html" class="nav-item active"><span class="nav-icon">📅</span>Holidays</a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user"><span id="sidebarAvatar" class="avatar orange">A</span>
+                    <div class="user-info">
+                        <div class="user-name" id="sidebarUserName">Admin</div>
+                        <div class="user-role" id="sidebarUserRole">admin</div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <div class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="menu-toggle" id="menuToggle">☰</button>
+                    <div>
+                        <div class="page-title">Academic Holidays</div>
+                        <div class="page-subtitle" id="topbarDate"></div>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <select id="yearSelect" class="form-control" style="width:auto" onchange="loadHolidays()">
+                        <option value="2025">2025</option>
+                        <option value="2026" selected>2026</option>
+                        <option value="2027">2027</option>
+                    </select>
+                    <button class="btn btn-accent" onclick="openModal('addHolidayModal')">+ Add Holiday</button>
+                </div>
+            </header>
+
+            <div class="page-content">
+
+                <!-- Stats row -->
+                <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+                    <div class="stat-card blue" style="padding:16px 20px">
+                        <div class="stat-icon" style="font-size:22px">📅</div>
+                        <div class="stat-value" id="statTotal" style="font-size:26px">—</div>
+                        <div class="stat-label">Total Holidays</div>
+                    </div>
+                    <div class="stat-card red" style="padding:16px 20px">
+                        <div class="stat-icon" style="font-size:22px">🇮🇳</div>
+                        <div class="stat-value" id="statNational" style="font-size:26px">—</div>
+                        <div class="stat-label">National</div>
+                    </div>
+                    <div class="stat-card orange" style="padding:16px 20px">
+                        <div class="stat-icon" style="font-size:22px">🙏</div>
+                        <div class="stat-value" id="statReligious" style="font-size:26px">—</div>
+                        <div class="stat-label">Religious</div>
+                    </div>
+                    <div class="stat-card green" style="padding:16px 20px">
+                        <div class="stat-icon" style="font-size:22px">🏫</div>
+                        <div class="stat-value" id="statSchool" style="font-size:26px">—</div>
+                        <div class="stat-label">School</div>
+                    </div>
+                </div>
+
+                <!-- Full Year Calendar -->
+                <div class="card" style="margin-bottom:20px">
+                    <div class="card-header">
+                        <h3>📆 <span id="calYearTitle">2026</span> Full Year Calendar</h3>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background:#dbeafe"></div>National
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background:#fef9c3"></div>Religious
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background:#d1fae5"></div>School
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background:var(--primary);border-radius:50%"></div>Today
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="year-calendar" id="yearCalendar"></div>
+                    </div>
+                </div>
+
+                <!-- Holiday List -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>📅 Holiday List</h3>
+                        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                            <span id="holidayCount" class="badge badge-primary">0 holidays</span>
+                            <select id="filterType" class="form-control"
+                                style="width:auto;padding:5px 10px;font-size:13px" onchange="renderTable()">
+                                <option value="">All Types</option>
+                                <option value="National">National</option>
+                                <option value="Religious">Religious</option>
+                                <option value="School">School</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Month quick tabs -->
+                    <div style="padding:0 20px">
+                        <div class="month-tabs" id="monthTabs"></div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="table" id="holidayTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Holiday</th>
+                                    <th>Date</th>
+                                    <th>Day</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="holidayBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD HOLIDAY MODAL -->
+    <div class="modal-overlay" id="addHolidayModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add Holiday</h3><button class="modal-close" onclick="closeModal('addHolidayModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="addHolidayForm" onsubmit="addHoliday(event)">
+                    <div class="form-group"><label class="form-label">Title *</label><input type="text" id="hTitle"
+                            class="form-control" required placeholder="e.g. Diwali Holiday"></div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Date *</label><input type="date" id="hDate"
+                                class="form-control" required></div>
+                        <div class="form-group"><label class="form-label">End Date (optional)</label><input type="date"
+                                id="hEndDate" class="form-control"></div>
+                    </div>
+                    <div class="form-group"><label class="form-label">Type</label>
+                        <select id="hType" class="form-control">
+                            <option value="National">🇮🇳 National</option>
+                            <option value="Religious">🙏 Religious</option>
+                            <option value="School" selected>🏫 School</option>
+                            <option value="Other">📌 Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label">Description</label><textarea id="hDesc"
+                            class="form-control" rows="2" placeholder="Optional description"></textarea></div>
+                    <div class="modal-footer" style="margin:0 -24px -24px;padding:16px 24px">
+                        <button type="button" class="btn btn-outline"
+                            onclick="closeModal('addHolidayModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Holiday</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        let holidays = [];
+        let activeMonth = null; // null = show all
+
+        const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'];
+        const DAYS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await checkAuth('admin');
+            if (!user) return;
+            // Default hDate to today
+            document.getElementById('hDate').valueAsDate = new Date();
+            await loadHolidays();
+        });
+
+        // ── Load & render ─────────────────────────────────────────
+        async function loadHolidays() {
+            const year = document.getElementById('yearSelect').value;
+            document.getElementById('calYearTitle').textContent = year;
+            const res = await API.get(`/api/holidays?year=${year}`);
+            if (!res.success) return;
+            holidays = res.data;
+            updateStats();
+            renderYearCalendar(parseInt(year));
+            buildMonthTabs();
+            renderTable();
+        }
+
+        function updateStats() {
+            document.getElementById('statTotal').textContent = holidays.length;
+            document.getElementById('statNational').textContent = holidays.filter(h => h.type === 'National').length;
+            document.getElementById('statReligious').textContent = holidays.filter(h => h.type === 'Religious').length;
+            document.getElementById('statSchool').textContent = holidays.filter(h => h.type === 'School').length;
+            document.getElementById('holidayCount').textContent = holidays.length + ' holidays';
+        }
+
+        // ── Year Calendar ─────────────────────────────────────────
+        function renderYearCalendar(year) {
+            const today = new Date().toISOString().split('T')[0];
+            const holMap = {}; // date → type
+            holidays.forEach(h => { holMap[h.date.substring(0, 10)] = (h.type || 'Other').toLowerCase(); });
+
+            const grid = document.getElementById('yearCalendar');
+            let html = '';
+
+            for (let m = 0; m < 12; m++) {
+                const firstDay = new Date(year, m, 1).getDay();
+                const daysInMonth = new Date(year, m + 1, 0).getDate();
+                const monthHolidays = holidays.filter(h => {
+                    const d = new Date(h.date);
+                    return d.getFullYear() === year && d.getMonth() === m;
+                });
+
+                html += `
+                <div class="month-card">
+                    <div class="month-card-header">${MONTHS[m]} ${year}
+                        ${monthHolidays.length ? `<span style="float:right;font-size:11px;opacity:0.8">${monthHolidays.length} holiday${monthHolidays.length > 1 ? 's' : ''}</span>` : ''}
+                    </div>
+                    <div class="month-grid">
+                        ${['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => `<div class="cal-cell hdr">${d}</div>`).join('')}
+                        ${Array(firstDay).fill('<div class="cal-cell"></div>').join('')}
+                        ${Array.from({ length: daysInMonth }, (_, i) => {
+                    const d = i + 1;
+                    const dateStr = `${year}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                    const dayOfWeek = new Date(year, m, d).getDay();
+                    const hType = holMap[dateStr];
+                    let cls = 'cal-cell';
+                    if (dateStr === today) cls += ' today';
+                    else if (hType) cls += ` holiday ${hType}`;
+                    else if (dayOfWeek === 0) cls += ' sunday';
+                    const holForDay = holidays.find(h => h.date.substring(0, 10) === dateStr);
+                    const title = holForDay ? `title="${holForDay.title}"` : '';
+                    return `<div class="${cls}" ${title}>${d}</div>`;
+                }).join('')}
+                    </div>
+                </div>`;
+            }
+            grid.innerHTML = html;
+        }
+
+        // ── Month tabs ────────────────────────────────────────────
+        function buildMonthTabs() {
+            const tabs = document.getElementById('monthTabs');
+            const usedMonths = new Set(holidays.map(h => new Date(h.date).getMonth()));
+            let html = `<div class="month-tab ${activeMonth === null ? 'active' : ''}" onclick="setMonth(null)">All</div>`;
+            MONTHS.forEach((m, i) => {
+                if (usedMonths.has(i))
+                    html += `<div class="month-tab ${activeMonth === i ? 'active' : ''}" onclick="setMonth(${i})">${m.slice(0, 3)}</div>`;
+            });
+            tabs.innerHTML = html;
+        }
+
+        function setMonth(m) {
+            activeMonth = m;
+            buildMonthTabs();
+            renderTable();
+        }
+
+        // ── Holiday Table ─────────────────────────────────────────
+        function renderTable() {
+            const typeFilter = document.getElementById('filterType').value;
+            let filtered = holidays;
+            if (activeMonth !== null) filtered = filtered.filter(h => new Date(h.date).getMonth() === activeMonth);
+            if (typeFilter) filtered = filtered.filter(h => h.type === typeFilter);
+
+            const typeColors = {
+                National: 'hol-type-national',
+                Religious: 'hol-type-religious',
+                School: 'hol-type-school',
+                Other: 'hol-type-other'
+            };
+
+            const tbody = document.getElementById('holidayBody');
+            if (!filtered.length) {
+                tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📅</div><h4>No holidays found</h4></div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map((h, i) => {
+                const d = new Date(h.date);
+                const dayName = DAYS_SHORT[d.getDay()];
+                const isSunday = d.getDay() === 0;
+                const today = new Date().toISOString().split('T')[0];
+                const isPast = h.date.substring(0, 10) < today;
+                const isToday = h.date.substring(0, 10) === today;
+                const rowStyle = isToday ? 'background:#fef9c3' : isPast ? 'opacity:0.65' : '';
+                const badgeCls = typeColors[h.type] || 'hol-type-other';
+
+                return `<tr style="${rowStyle}">
+                    <td class="text-muted">${i + 1}</td>
+                    <td><strong>${h.title}</strong>${isToday ? '<span class="badge badge-warning" style="margin-left:6px">Today</span>' : ''}</td>
+                    <td><strong>${formatDate(h.date)}</strong>${h.end_date ? '<br><span class="text-sm text-muted">to ' + formatDate(h.end_date) + '</span>' : ''}</td>
+                    <td><span style="font-weight:600;color:${isSunday ? '#ef4444' : '#475569'}">${dayName}</span></td>
+                    <td><span class="badge ${badgeCls}">${h.type}</span></td>
+                    <td class="text-muted">${h.description || '—'}</td>
+                    <td><button class="btn btn-danger btn-sm" onclick="deleteHoliday(${h.id})">🗑️</button></td>
+                </tr>`;
+            }).join('');
+        }
+
+        // ── Add Holiday ───────────────────────────────────────────
+        async function addHoliday(e) {
+            e.preventDefault();
+            const btn = e.submitter;
+            btn.disabled = true; btn.textContent = 'Adding...';
+            const res = await API.post('/api/holidays', {
+                title: document.getElementById('hTitle').value,
+                date: document.getElementById('hDate').value,
+                end_date: document.getElementById('hEndDate').value || null,
+                type: document.getElementById('hType').value,
+                description: document.getElementById('hDesc').value
+            });
+            btn.disabled = false; btn.textContent = 'Add Holiday';
+            if (res.success) {
+                showToast('Holiday added! 🎉', 'success');
+                closeModal('addHolidayModal');
+                document.getElementById('addHolidayForm').reset();
+                document.getElementById('hDate').valueAsDate = new Date();
+                loadHolidays();
+            } else showToast(res.message, 'error');
+        }
+
+        // ── Delete Holiday ────────────────────────────────────────
+        async function deleteHoliday(id) {
+            const ok = await showConfirm('This holiday will be permanently removed.', '🗑️ Yes, Delete');
+            if (!ok) return;
+            const res = await API.delete(`/api/holidays/${id}`);
+            if (res.success) { showToast('Holiday deleted.', 'success'); loadHolidays(); }
+            else showToast(res.message, 'error');
+        }
+    </script>
+</body>
+
+</html>

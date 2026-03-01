@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Students — Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <a href="dashboard.html" class="sidebar-logo">
+                <div class="logo-icon">🏫</div>
+                <div class="logo-text">
+                    <h2>EduManage Pro</h2><span>Admin Panel</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div><a href="dashboard.html" class="nav-item"><span
+                            class="nav-icon">📊</span>Dashboard</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Management</div>
+                    <a href="students.html" class="nav-item active"><span class="nav-icon">👩‍🎓</span>Students</a>
+                    <a href="teachers.html" class="nav-item"><span class="nav-icon">👨‍🏫</span>Teachers</a>
+                    <a href="classes.html" class="nav-item"><span class="nav-icon">🏛️</span>Classes & Subjects</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Academics</div>
+                    <a href="attendance.html" class="nav-item"><span class="nav-icon">📋</span>Attendance Reports</a>
+                    <a href="materials.html" class="nav-item"><span class="nav-icon">📚</span>Study Materials</a>
+                    <a href="fees.html" class="nav-item"><span class="nav-icon">💰</span>Fees Management</a>
+                    <a href="holidays.html" class="nav-item"><span class="nav-icon">📅</span>Holidays</a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user"><span id="sidebarAvatar" class="avatar orange">A</span>
+                    <div class="user-info">
+                        <div class="user-name" id="sidebarUserName">Admin</div>
+                        <div class="user-role" id="sidebarUserRole">admin</div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <div class="main-content">
+            <header class="topbar">
+                <div class="topbar-left"><button class="menu-toggle" id="menuToggle">☰</button>
+                    <div>
+                        <div class="page-title">Students</div>
+                        <div class="page-subtitle" id="topbarDate"></div>
+                    </div>
+                </div>
+                <div class="topbar-right"><button class="btn btn-accent" onclick="openModal('addStudentModal')">+ Add
+                        Student</button></div>
+            </header>
+
+            <div class="page-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>👩‍🎓 All Students</h3>
+                        <span id="studentCount" class="badge badge-primary">Loading...</span>
+                    </div>
+                    <div class="card-body" style="padding-bottom:0">
+                        <div class="filter-bar">
+                            <div class="search-input"><span class="search-icon">🔍</span><input type="text"
+                                    id="searchInput" placeholder="Search students..."></div>
+                            <select id="filterClass" class="form-control" style="width:auto" onchange="loadStudents()">
+                                <option value="">All Classes</option>
+                            </select>
+                            <select id="filterStatus" class="form-control" style="width:auto" onchange="loadStudents()">
+                                <option value="">All Status</option>
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="table" id="studentsTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Student</th>
+                                    <th>Roll No.</th>
+                                    <th>Class</th>
+                                    <th>Board</th>
+                                    <th>Parent</th>
+                                    <th>Phone</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsBody">
+                                <tr>
+                                    <td colspan="9" class="text-center" style="padding:40px">
+                                        <div class="loader"
+                                            style="border-color:rgba(30,58,138,0.2);border-top-color:var(--primary)">
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD STUDENT MODAL -->
+    <div class="modal-overlay" id="addStudentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add New Student</h3><button class="modal-close" onclick="closeModal('addStudentModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="addStudentForm" onsubmit="addStudent(event)">
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Full Name *</label><input type="text"
+                                id="sName" class="form-control" required placeholder="Student full name"></div>
+                        <div class="form-group"><label class="form-label">Email *</label><input type="email" id="sEmail"
+                                class="form-control" required placeholder="student@email.com"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Password</label><input type="password"
+                                id="sPassword" class="form-control" placeholder="Default: Student@123"></div>
+                        <div class="form-group"><label class="form-label">Roll Number</label><input type="text"
+                                id="sRoll" class="form-control" placeholder="e.g. 2024001"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Class</label><select id="sClass"
+                                class="form-control">
+                                <option value="">Select Class</option>
+                            </select></div>
+                        <div class="form-group"><label class="form-label">Gender</label>
+                            <select id="sGender" class="form-control">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Date of Birth</label><input type="date"
+                                id="sDob" class="form-control"></div>
+                        <div class="form-group"><label class="form-label">Phone</label><input type="text" id="sPhone"
+                                class="form-control" placeholder="Student phone"></div>
+                    </div>
+                    <div class="form-group"><label class="form-label">Parent Name</label><input type="text" id="sParent"
+                            class="form-control" placeholder="Parent/Guardian name"></div>
+                    <div class="form-group"><label class="form-label">Address</label><textarea id="sAddress"
+                            class="form-control" rows="2" placeholder="Full address"></textarea></div>
+                    <div class="modal-footer" style="margin:0 -24px -24px;padding:16px 24px">
+                        <button type="button" class="btn btn-outline"
+                            onclick="closeModal('addStudentModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="addStudentBtn">Add Student</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT STUDENT MODAL -->
+    <div class="modal-overlay" id="editStudentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Edit Student</h3><button class="modal-close" onclick="closeModal('editStudentModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="editStudentForm" onsubmit="updateStudent(event)">
+                    <input type="hidden" id="eStudentId">
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Full Name *</label><input type="text"
+                                id="eName" class="form-control" required></div>
+                        <div class="form-group"><label class="form-label">Email *</label><input type="email" id="eEmail"
+                                class="form-control" required></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Roll Number</label><input type="text"
+                                id="eRoll" class="form-control"></div>
+                        <div class="form-group"><label class="form-label">Class</label><select id="eClass"
+                                class="form-control">
+                                <option value="">Select Class</option>
+                            </select></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Phone</label><input type="text" id="ePhone"
+                                class="form-control"></div>
+                        <div class="form-group"><label class="form-label">Parent Name</label><input type="text"
+                                id="eParent" class="form-control"></div>
+                    </div>
+                    <div class="form-group"><label class="form-label">Address</label><textarea id="eAddress"
+                            class="form-control" rows="2"></textarea></div>
+                    <div class="form-group"><label class="form-label">Status</label>
+                        <select id="eStatus" class="form-control">
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="modal-footer" style="margin:0 -24px -24px;padding:16px 24px">
+                        <button type="button" class="btn btn-outline"
+                            onclick="closeModal('editStudentModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        let allStudents = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await checkAuth('admin');
+            if (!user) return;
+            await loadClassesDropdown('sClass');
+            await loadClassesDropdown('eClass');
+            const res = await API.get('/api/classes');
+            if (res.success) {
+                const sel = document.getElementById('filterClass');
+                res.data.forEach(c => { sel.innerHTML += `<option value="${c.id}">${c.name} | ${c.board} | ${c.medium}</option>`; });
+            }
+            await loadStudents();
+            initSearch('searchInput', 'studentsTable');
+        });
+
+        async function loadStudents() {
+            const res = await API.get('/api/admin/students');
+            if (!res.success) { showToast(res.message, 'error'); return; }
+            allStudents = res.data;
+            renderStudents(allStudents);
+        }
+
+        function renderStudents(data) {
+            const filterClass = document.getElementById('filterClass').value;
+            const filterStatus = document.getElementById('filterStatus').value;
+            let filtered = data;
+            if (filterClass) filtered = filtered.filter(s => s.class_id == filterClass);
+            if (filterStatus !== '') filtered = filtered.filter(s => s.is_active == filterStatus);
+
+            document.getElementById('studentCount').textContent = filtered.length + ' students';
+            const tbody = document.getElementById('studentsBody');
+            if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">👩‍🎓</div><h4>No students found</h4><p>Add a student using the button above.</p></div></td></tr>'; return; }
+            tbody.innerHTML = filtered.map((s, i) => `
+        <tr>
+            <td class="text-muted">${i + 1}</td>
+            <td><div class="flex items-center gap-1">${getAvatar(s.name, 'blue')}<div><strong>${s.name}</strong><div class="text-sm text-muted">${s.email}</div></div></div></td>
+            <td><code style="background:#f1f5f9;padding:2px 7px;border-radius:5px;font-size:12px">${s.roll_no || '—'}</code></td>
+            <td><strong>${s.class_name || '—'}</strong></td>
+            <td><span class="badge badge-primary">${s.board || '—'}</span><br><span class="text-sm text-muted">${s.medium || ''}</span></td>
+            <td>${s.parent_name || '—'}</td>
+            <td>${s.phone || '—'}</td>
+            <td>${statusBadge(s.is_active ? 'Active' : 'Inactive')}</td>
+            <td>
+                <button class="btn btn-outline btn-sm" onclick="editStudent(${JSON.stringify(s).replace(/"/g, '&quot;')})">✏️</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteStudent(${s.id}, '${s.name}')">🗑️</button>
+            </td>
+        </tr>
+    `).join('');
+        }
+
+        async function addStudent(e) {
+            e.preventDefault();
+            const btn = document.getElementById('addStudentBtn');
+            btn.disabled = true; btn.textContent = 'Adding...';
+            const res = await API.post('/api/admin/students', {
+                name: document.getElementById('sName').value,
+                email: document.getElementById('sEmail').value,
+                password: document.getElementById('sPassword').value,
+                roll_no: document.getElementById('sRoll').value,
+                class_id: document.getElementById('sClass').value,
+                gender: document.getElementById('sGender').value,
+                date_of_birth: document.getElementById('sDob').value,
+                phone: document.getElementById('sPhone').value,
+                parent_name: document.getElementById('sParent').value,
+                address: document.getElementById('sAddress').value
+            });
+            btn.disabled = false; btn.textContent = 'Add Student';
+            if (res.success) { showToast('Student added!', 'success'); closeModal('addStudentModal'); document.getElementById('addStudentForm').reset(); loadStudents(); }
+            else showToast(res.message, 'error');
+        }
+
+        function editStudent(s) {
+            document.getElementById('eStudentId').value = s.id;
+            document.getElementById('eName').value = s.name || '';
+            document.getElementById('eEmail').value = s.email || '';
+            document.getElementById('eRoll').value = s.roll_no || '';
+            document.getElementById('eClass').value = s.class_id || '';
+            document.getElementById('ePhone').value = s.phone || '';
+            document.getElementById('eParent').value = s.parent_name || '';
+            document.getElementById('eAddress').value = s.address || '';
+            document.getElementById('eStatus').value = s.is_active ? '1' : '0';
+            openModal('editStudentModal');
+        }
+
+        async function updateStudent(e) {
+            e.preventDefault();
+            const id = document.getElementById('eStudentId').value;
+            const res = await API.put(`/api/admin/students/${id}`, {
+                name: document.getElementById('eName').value,
+                email: document.getElementById('eEmail').value,
+                roll_no: document.getElementById('eRoll').value,
+                class_id: document.getElementById('eClass').value,
+                phone: document.getElementById('ePhone').value,
+                parent_name: document.getElementById('eParent').value,
+                address: document.getElementById('eAddress').value,
+                is_active: document.getElementById('eStatus').value
+            });
+            if (res.success) { showToast('Student updated!', 'success'); closeModal('editStudentModal'); loadStudents(); }
+            else showToast(res.message, 'error');
+        }
+
+        async function deleteStudent(id, name) {
+            const ok = await showConfirm(`Delete student "${name}"? This cannot be undone.`, '🗑️ Yes, Delete');
+            if (!ok) return;
+            const res = await API.delete(`/api/admin/students/${id}`);
+            if (res.success) { showToast('Student deleted.', 'success'); loadStudents(); }
+            else showToast(res.message, 'error');
+        }
+
+        document.getElementById('filterClass').addEventListener('change', () => renderStudents(allStudents));
+        document.getElementById('filterStatus').addEventListener('change', () => renderStudents(allStudents));
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Materials — EduManage Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <a href="dashboard.html" class="sidebar-logo">
+                <div class="logo-icon">🏫</div>
+                <div class="logo-text">
+                    <h2>EduManage Pro</h2><span>Student Portal</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Dashboard</div>
+                    <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span>Dashboard</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Academics</div>
+                    <a href="attendance.html" class="nav-item"><span class="nav-icon">📋</span>My Attendance</a>
+                    <a href="fees.html" class="nav-item"><span class="nav-icon">💰</span>My Fees</a>
+                    <a href="profile.html" class="nav-item"><span class="nav-icon">👤</span>My Profile</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Resources</div>
+                    <a href="materials.html" class="nav-item active"><span class="nav-icon">📚</span>Study Materials</a>
+                    <a href="holidays.html" class="nav-item"><span class="nav-icon">📅</span>Holidays</a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <span id="sidebarAvatar" class="avatar blue">S</span>
+                    <div class="user-info">
+                        <div class="user-name" id="sidebarUserName">Student</div>
+                        <div class="user-role" id="sidebarUserRole">student</div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <div class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="menu-toggle" id="menuToggle">☰</button>
+                    <div>
+                        <div class="page-title">Study Materials</div>
+                        <div class="page-subtitle" id="topbarDate"></div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>📚 My Class Materials</h3>
+                        <input type="text" id="searchBox" class="form-control" placeholder="🔍 Search materials..."
+                            style="max-width:260px" oninput="filterMaterials()">
+                    </div>
+                    <div class="card-body">
+                        <div id="materialsList">
+                            <div class="text-center text-muted" style="padding:40px">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        let allMaterials = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await checkAuth('student');
+            if (!user) return;
+            loadMaterials();
+        });
+
+        async function loadMaterials() {
+            const res = await API.get('/api/materials');
+            const el = document.getElementById('materialsList');
+            if (!res.success || !res.data.length) {
+                el.innerHTML = '<div class="empty-state"><div class="empty-icon">📚</div><h4>No materials available yet</h4><p>Your teacher hasn\'t uploaded materials yet.</p></div>';
+                return;
+            }
+            allMaterials = res.data;
+            renderMaterials(allMaterials);
+        }
+
+        function renderMaterials(items) {
+            const el = document.getElementById('materialsList');
+            if (!items.length) {
+                el.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><h4>No results found</h4></div>';
+                return;
+            }
+            const typeIcon = { pdf: '📄', video: '🎥', image: '🖼️', link: '🔗', other: '📁' };
+            el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
+            ${items.map(m => `
+            <div style="border:1.5px solid #e2e8f0;border-radius:12px;padding:18px;background:#fff;transition:box-shadow 0.2s" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
+                <div style="font-size:32px;margin-bottom:10px">${typeIcon[m.file_type] || '📁'}</div>
+                <h4 style="font-size:15px;font-weight:700;color:#1e293b;margin-bottom:6px">${m.title}</h4>
+                ${m.description ? `<p style="font-size:13px;color:#64748b;margin-bottom:10px">${m.description}</p>` : ''}
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+                    <span class="badge badge-primary">${m.subject || 'General'}</span>
+                    <span class="badge">${m.file_type || 'file'}</span>
+                    ${m.class_name ? `<span class="badge badge-success">${m.class_name}</span>` : ''}
+                </div>
+                <div style="font-size:12px;color:#94a3b8;margin-bottom:12px">Uploaded: ${formatDate(m.created_at)}</div>
+                <a href="${window.API_BASE}/api/materials/download/${m.id}" class="btn btn-primary btn-sm w-100" style="justify-content:center">⬇️ Download / View</a>
+            </div>`).join('')}
+        </div>`;
+        }
+
+        function filterMaterials() {
+            const q = document.getElementById('searchBox').value.toLowerCase();
+            renderMaterials(allMaterials.filter(m =>
+                (m.title || '').toLowerCase().includes(q) ||
+                (m.subject || '').toLowerCase().includes(q) ||
+                (m.description || '').toLowerCase().includes(q)
+            ));
+        }
+    </script>
+</body>
+
+</html>

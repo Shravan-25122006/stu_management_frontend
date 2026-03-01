@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard — EduManage Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <a href="dashboard.html" class="sidebar-logo">
+                <div class="logo-icon">🏫</div>
+                <div class="logo-text">
+                    <h2>EduManage Pro</h2><span>Teacher Portal</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Dashboard</div>
+                    <a href="dashboard.html" class="nav-item active"><span class="nav-icon">📊</span>Dashboard</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Class Management</div>
+                    <a href="attendance.html" class="nav-item"><span class="nav-icon">📋</span>Mark Attendance</a>
+                    <a href="students.html" class="nav-item"><span class="nav-icon">👩‍🎓</span>My Students</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Resources</div>
+                    <a href="materials.html" class="nav-item"><span class="nav-icon">📚</span>Study Materials</a>
+                    <a href="holidays.html" class="nav-item"><span class="nav-icon">📅</span>Holidays</a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user"><span id="sidebarAvatar" class="avatar cyan">T</span>
+                    <div class="user-info">
+                        <div class="user-name" id="sidebarUserName">Teacher</div>
+                        <div class="user-role" id="sidebarUserRole">teacher</div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <div class="main-content">
+            <header class="topbar">
+                <div class="topbar-left"><button class="menu-toggle" id="menuToggle">☰</button>
+                    <div>
+                        <div class="page-title">Teacher Dashboard</div>
+                        <div class="page-subtitle" id="topbarDate"></div>
+                    </div>
+                </div>
+                <div class="topbar-right"><a href="attendance.html" class="btn btn-accent btn-sm">📋 Mark Today's
+                        Attendance</a></div>
+            </header>
+
+            <div class="page-content">
+                <!-- Welcome -->
+                <div
+                    style="background:linear-gradient(135deg,#065f46,#059669);border-radius:16px;padding:24px 28px;margin-bottom:24px;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+                    <div>
+                        <h2 style="font-size:22px;margin-bottom:4px">Good day, <span id="welcomeName">Teacher</span>!
+                            👨‍🏫</h2>
+                        <p style="opacity:0.85;font-size:14px" id="todayStatus">Your attendance status for today:
+                            <strong>Not Marked</strong>
+                        </p>
+                    </div>
+                    <div style="font-size:52px">📚</div>
+                </div>
+
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card blue">
+                        <div class="stat-icon">🏛️</div>
+                        <div class="stat-value" id="statClasses">—</div>
+                        <div class="stat-label">Classes Assigned</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-icon">👩‍🎓</div>
+                        <div class="stat-value" id="statStudents">—</div>
+                        <div class="stat-label">Total Students</div>
+                    </div>
+                    <div class="stat-card cyan">
+                        <div class="stat-icon">📚</div>
+                        <div class="stat-value" id="statMaterials">—</div>
+                        <div class="stat-label">Materials Uploaded</div>
+                    </div>
+                    <div class="stat-card orange">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-value" id="statToday">—</div>
+                        <div class="stat-label">Today's Status</div>
+                    </div>
+                </div>
+
+                <div class="flex gap-2" style="flex-wrap:wrap;align-items:flex-start">
+                    <div class="card" style="flex:1;min-width:280px">
+                        <div class="card-header">
+                            <h3>⚡ Quick Actions</h3>
+                        </div>
+                        <div class="card-body">
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                                <a href="attendance.html" class="btn btn-primary w-100"
+                                    style="justify-content:center;padding:16px;flex-direction:column;height:auto"><span
+                                        style="font-size:24px">📋</span>Mark Attendance</a>
+                                <a href="students.html" class="btn btn-outline w-100"
+                                    style="justify-content:center;padding:16px;flex-direction:column;height:auto"><span
+                                        style="font-size:24px">👩‍🎓</span>My Students</a>
+                                <a href="materials.html" class="btn btn-outline w-100"
+                                    style="justify-content:center;padding:16px;flex-direction:column;height:auto"><span
+                                        style="font-size:24px">📤</span>Upload Material</a>
+                                <a href="holidays.html" class="btn btn-outline w-100"
+                                    style="justify-content:center;padding:16px;flex-direction:column;height:auto"><span
+                                        style="font-size:24px">📅</span>Holidays</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mark My Attendance Today -->
+                    <div class="card" style="flex:1;min-width:280px">
+                        <div class="card-header">
+                            <h3>🕐 Mark My Attendance</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="myAttForm" onsubmit="markMyAttendance(event)">
+                                <div class="form-group">
+                                    <label class="form-label">Date</label>
+                                    <input type="date" id="myAttDate" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Status</label>
+                                    <select id="myAttStatus" class="form-control">
+                                        <option value="Present">Present</option>
+                                        <option value="Absent">Absent</option>
+                                        <option value="Late">Late</option>
+                                        <option value="Leave">On Leave</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group"><label class="form-label">Check In</label><input type="time"
+                                            id="myCheckIn" class="form-control"></div>
+                                    <div class="form-group"><label class="form-label">Check Out</label><input
+                                            type="time" id="myCheckOut" class="form-control"></div>
+                                </div>
+                                <button type="submit" class="btn btn-success w-100">✅ Save Attendance</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Upcoming Holidays -->
+                    <div class="card" style="flex:1;min-width:240px">
+                        <div class="card-header">
+                            <h3>📅 Upcoming Holidays</h3>
+                        </div>
+                        <div class="card-body" id="upcomingHolidays"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await checkAuth('teacher');
+            if (!user) return;
+            document.getElementById('welcomeName').textContent = user.name.split(' ')[0];
+            document.getElementById('myAttDate').value = new Date().toISOString().split('T')[0];
+            loadStats();
+            loadHolidays();
+        });
+
+        async function loadStats() {
+            const res = await API.get('/api/teacher/stats');
+            if (!res.success) return;
+            const d = res.data;
+            document.getElementById('statClasses').textContent = d.classes;
+            document.getElementById('statStudents').textContent = d.students;
+            document.getElementById('statMaterials').textContent = d.materials;
+            document.getElementById('statToday').textContent = d.todayStatus;
+            document.getElementById('todayStatus').innerHTML = `Your attendance status for today: <strong>${d.todayStatus}</strong>`;
+        }
+
+        async function markMyAttendance(e) {
+            e.preventDefault();
+            const res = await API.post('/api/attendance/teacher', {
+                date: document.getElementById('myAttDate').value,
+                status: document.getElementById('myAttStatus').value,
+                check_in: document.getElementById('myCheckIn').value,
+                check_out: document.getElementById('myCheckOut').value
+            });
+            if (res.success) { showToast('Attendance marked!', 'success'); loadStats(); }
+            else showToast(res.message, 'error');
+        }
+
+        async function loadHolidays() {
+            const res = await API.get('/api/holidays/upcoming');
+            const el = document.getElementById('upcomingHolidays');
+            if (!res.success || !res.data.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><h4>No upcoming holidays</h4></div>'; return; }
+            el.innerHTML = res.data.map(h => `
+        <div class="flex items-center gap-1 mb-2" style="padding:10px;background:#f8fafc;border-radius:8px;border-left:3px solid var(--accent)">
+            <div style="flex:1"><strong style="font-size:13px">${h.title}</strong><div class="text-sm text-muted">${formatDate(h.date)}</div></div>
+            <span class="badge badge-warning">${h.type}</span>
+        </div>
+    `).join('');
+        }
+    </script>
+</body>
+
+</html>

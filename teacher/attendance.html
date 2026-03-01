@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark Attendance — Teacher</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <a href="dashboard.html" class="sidebar-logo">
+                <div class="logo-icon">🏫</div>
+                <div class="logo-text">
+                    <h2>EduManage Pro</h2><span>Teacher Portal</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Dashboard</div><a href="dashboard.html" class="nav-item"><span
+                            class="nav-icon">📊</span>Dashboard</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Class Management</div>
+                    <a href="attendance.html" class="nav-item active"><span class="nav-icon">📋</span>Mark
+                        Attendance</a>
+                    <a href="students.html" class="nav-item"><span class="nav-icon">👩‍🎓</span>My Students</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Resources</div>
+                    <a href="materials.html" class="nav-item"><span class="nav-icon">📚</span>Study Materials</a>
+                    <a href="holidays.html" class="nav-item"><span class="nav-icon">📅</span>Holidays</a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user"><span id="sidebarAvatar" class="avatar cyan">T</span>
+                    <div class="user-info">
+                        <div class="user-name" id="sidebarUserName">Teacher</div>
+                        <div class="user-role" id="sidebarUserRole">teacher</div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <div class="main-content">
+            <header class="topbar">
+                <div class="topbar-left"><button class="menu-toggle" id="menuToggle">☰</button>
+                    <div>
+                        <div class="page-title">Mark Student Attendance</div>
+                        <div class="page-subtitle" id="topbarDate"></div>
+                    </div>
+                </div>
+            </header>
+            <div class="page-content">
+                <!-- Filter -->
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <div class="filter-bar">
+                            <div class="form-group" style="flex:1;margin:0"><label class="form-label">Select
+                                    Class</label><select id="classSelect" class="form-control"
+                                    onchange="loadStudents()">
+                                    <option value="">-- Select Class --</option>
+                                </select></div>
+                            <div class="form-group" style="margin:0"><label class="form-label">Attendance
+                                    Date</label><input type="date" id="attDate" class="form-control"></div>
+                            <div style="align-self:flex-end"><button class="btn btn-primary"
+                                    onclick="loadStudents()">Load Students</button></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attendance Table -->
+                <div class="card" id="attCard" style="display:none">
+                    <div class="card-header">
+                        <div>
+                            <h3>📋 Mark Attendance</h3>
+                            <p class="text-sm text-muted" id="attHeader"></p>
+                        </div>
+                        <div class="attendance-stats" style="margin:0;grid-template-columns:repeat(4,1fr);gap:8px"
+                            id="attSummary">
+                            <div class="att-stat present">
+                                <div class="att-num" id="cP">0</div>
+                                <div class="att-lbl">Present</div>
+                            </div>
+                            <div class="att-stat absent">
+                                <div class="att-num" id="cA">0</div>
+                                <div class="att-lbl">Absent</div>
+                            </div>
+                            <div class="att-stat late">
+                                <div class="att-num" id="cL">0</div>
+                                <div class="att-lbl">Late</div>
+                            </div>
+                            <div class="att-stat leave">
+                                <div class="att-num" id="cLv">0</div>
+                                <div class="att-lbl">Leave</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body" style="padding-bottom:0">
+                        <div class="flex gap-1 mb-2">
+                            <button class="btn btn-success btn-sm" onclick="markAll('Present')">✅ All Present</button>
+                            <button class="btn btn-danger btn-sm" onclick="markAll('Absent')">❌ All Absent</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Student</th>
+                                    <th>Roll No.</th>
+                                    <th>Status</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attStudentsBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="card-body" style="border-top:1px solid var(--border)">
+                        <button class="btn btn-primary btn-lg" onclick="submitAttendance()">💾 Save Attendance</button>
+                    </div>
+                </div>
+                <div id="emptyState" class="empty-state" style="display:none">
+                    <div class="empty-icon">📋</div>
+                    <h4>No Students Found</h4>
+                    <p>Select a class with enrolled students.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../js/api.js"></script>
+    <script>
+        let students = [];
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await checkAuth('teacher');
+            if (!user) return;
+            document.getElementById('attDate').value = new Date().toISOString().split('T')[0];
+            const res = await API.get('/api/teacher/classes');
+            if (res.success) { res.data.forEach(c => { document.getElementById('classSelect').innerHTML += `<option value="${c.id}">${c.name} | ${c.board} | ${c.medium}</option>`; }); }
+        });
+
+        async function loadStudents() {
+            const classId = document.getElementById('classSelect').value;
+            if (!classId) return;
+            const res = await API.get(`/api/teacher/students?class_id=${classId}`);
+            if (!res.success) { showToast(res.message, 'error'); return; }
+            students = res.data;
+            const attCard = document.getElementById('attCard');
+            const emptyState = document.getElementById('emptyState');
+            if (!students.length) { attCard.style.display = 'none'; emptyState.style.display = 'flex'; return; }
+            emptyState.style.display = 'none'; attCard.style.display = 'block';
+            document.getElementById('attHeader').textContent = `${students.length} students | ${document.getElementById('attDate').value}`;
+            renderAttTable();
+        }
+
+        function renderAttTable() {
+            const tbody = document.getElementById('attStudentsBody');
+            tbody.innerHTML = students.map((s, i) => `
+        <tr>
+            <td>${i + 1}</td>
+            <td><div class="flex items-center gap-1">${getAvatar(s.name, 'blue')}<strong>${s.name}</strong></div></td>
+            <td>${s.roll_no || '—'}</td>
+            <td>
+                <select class="status-select" id="status_${s.id}" onchange="updateCount()">
+                    <option value="Present">✅ Present</option>
+                    <option value="Absent">❌ Absent</option>
+                    <option value="Late">⏰ Late</option>
+                    <option value="Leave">📋 Leave</option>
+                </select>
+            </td>
+            <td><input type="text" class="form-control form-control-sm" id="remarks_${s.id}" placeholder="Remarks..." style="padding:5px 10px;font-size:12px"></td>
+        </tr>
+    `).join('');
+            updateCount();
+        }
+
+        function markAll(status) {
+            students.forEach(s => { const sel = document.getElementById(`status_${s.id}`); if (sel) sel.value = status; });
+            updateCount();
+        }
+
+        function updateCount() {
+            const counts = { Present: 0, Absent: 0, Late: 0, Leave: 0 };
+            students.forEach(s => { const v = document.getElementById(`status_${s.id}`)?.value; if (v) counts[v]++; });
+            document.getElementById('cP').textContent = counts.Present;
+            document.getElementById('cA').textContent = counts.Absent;
+            document.getElementById('cL').textContent = counts.Late;
+            document.getElementById('cLv').textContent = counts.Leave;
+        }
+
+        async function submitAttendance() {
+            const classId = document.getElementById('classSelect').value;
+            const date = document.getElementById('attDate').value;
+            if (!classId || !date) { showToast('Select class and date first.', 'error'); return; }
+            const attendanceList = students.map(s => ({
+                student_id: s.id,
+                status: document.getElementById(`status_${s.id}`)?.value || 'Absent',
+                remarks: document.getElementById(`remarks_${s.id}`)?.value || ''
+            }));
+            const res = await API.post('/api/attendance/student', { attendanceList, class_id: classId, date });
+            if (res.success) showToast(`Attendance saved for ${attendanceList.length} students!`, 'success');
+            else showToast(res.message, 'error');
+        }
+    </script>
+</body>
+
+</html>

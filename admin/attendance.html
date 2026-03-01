@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Reports — Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <a href="dashboard.html" class="sidebar-logo">
+                <div class="logo-icon">🏫</div>
+                <div class="logo-text">
+                    <h2>EduManage Pro</h2><span>Admin Panel</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div><a href="dashboard.html" class="nav-item"><span
+                            class="nav-icon">📊</span>Dashboard</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Management</div>
+                    <a href="students.html" class="nav-item"><span class="nav-icon">👩‍🎓</span>Students</a>
+                    <a href="teachers.html" class="nav-item"><span class="nav-icon">👨‍🏫</span>Teachers</a>
+                    <a href="classes.html" class="nav-item"><span class="nav-icon">🏛️</span>Classes & Subjects</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Academics</div>
+                    <a href="attendance.html" class="nav-item active"><span class="nav-icon">📋</span>Attendance
+                        Reports</a>
+                    <a href="materials.html" class="nav-item"><span class="nav-icon">📚</span>Study Materials</a>
+                    <a href="fees.html" class="nav-item"><span class="nav-icon">💰</span>Fees Management</a>
+                    <a href="holidays.html" class="nav-item"><span class="nav-icon">📅</span>Holidays</a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user"><span id="sidebarAvatar" class="avatar orange">A</span>
+                    <div class="user-info">
+                        <div class="user-name" id="sidebarUserName">Admin</div>
+                        <div class="user-role" id="sidebarUserRole">admin</div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <div class="main-content">
+            <header class="topbar">
+                <div class="topbar-left"><button class="menu-toggle" id="menuToggle">☰</button>
+                    <div>
+                        <div class="page-title">Attendance Reports</div>
+                        <div class="page-subtitle" id="topbarDate"></div>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <div class="tabs" style="background:#f1f5f9;padding:4px;border-radius:8px;display:flex;gap:4px">
+                        <button class="tab active"
+                            style="padding:6px 14px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;color:#1e3a8a;background:#fff"
+                            onclick="setType('student',this)">Students</button>
+                        <button class="tab"
+                            style="padding:6px 14px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;color:#64748b;background:none"
+                            onclick="setType('teacher',this)">Teachers</button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>📋 Attendance Report</h3>
+                        <div class="flex gap-1" style="flex-wrap:wrap">
+                            <select id="filterClass" class="form-control" style="width:auto">
+                                <option value="">All Classes</option>
+                            </select>
+                            <input type="date" id="filterDate" class="form-control" style="width:auto">
+                            <button class="btn btn-primary btn-sm" onclick="loadAttendance()">🔍 Filter</button>
+                            <button class="btn btn-outline btn-sm" onclick="clearFilters()">✕ Clear</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="table" id="attendanceTable">
+                            <thead id="attHead">
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Roll No.</th>
+                                    <th>Class</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attBody">
+                                <tr>
+                                    <td colspan="6" class="text-center" style="padding:40px">
+                                        <div class="text-muted">Select filters and click Filter to load records.</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        let currentType = 'student';
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await checkAuth('admin');
+            if (!user) return;
+            const res = await API.get('/api/classes');
+            if (res.success) { res.data.forEach(c => { document.getElementById('filterClass').innerHTML += `<option value="${c.id}">${c.name} | ${c.board}</option>`; }); }
+            document.getElementById('filterDate').value = new Date().toISOString().split('T')[0];
+            loadAttendance();
+        });
+
+        function setType(type, btn) {
+            currentType = type;
+            document.querySelectorAll('.tab').forEach(t => { t.style.background = 'none'; t.style.color = '#64748b'; });
+            btn.style.background = '#fff'; btn.style.color = '#1e3a8a';
+            const head = document.getElementById('attHead');
+            if (type === 'teacher') {
+                head.innerHTML = '<tr><th>Teacher</th><th>Employee ID</th><th>Date</th><th>Status</th><th>Check In</th><th>Check Out</th></tr>';
+            } else {
+                head.innerHTML = '<tr><th>Student</th><th>Roll No.</th><th>Class</th><th>Date</th><th>Status</th><th>Remarks</th></tr>';
+            }
+            loadAttendance();
+        }
+
+        async function loadAttendance() {
+            const classId = document.getElementById('filterClass').value;
+            const date = document.getElementById('filterDate').value;
+            let url = `/api/admin/attendance?type=${currentType}`;
+            if (classId) url += `&class_id=${classId}`;
+            if (date) url += `&date=${date}`;
+            const res = await API.get(url);
+            const tbody = document.getElementById('attBody');
+            if (!res.success || !res.data.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">📋</div><h4>No records found</h4></div></td></tr>'; return; }
+            if (currentType === 'teacher') {
+                tbody.innerHTML = res.data.map(t => `
+            <tr>
+                <td><strong>${t.teacher_name}</strong></td>
+                <td>${t.employee_id || '—'}</td>
+                <td>${formatDate(t.date)}</td>
+                <td>${statusBadge(t.status)}</td>
+                <td>${t.check_in || '—'}</td>
+                <td>${t.check_out || '—'}</td>
+            </tr>
+        `).join('');
+            } else {
+                tbody.innerHTML = res.data.map(s => `
+            <tr>
+                <td><strong>${s.student_name}</strong></td>
+                <td>${s.roll_no || '—'}</td>
+                <td>${s.class_name || '—'}</td>
+                <td>${formatDate(s.date)}</td>
+                <td>${statusBadge(s.status)}</td>
+                <td>${s.remarks || '—'}</td>
+            </tr>
+        `).join('');
+            }
+        }
+
+        function clearFilters() {
+            document.getElementById('filterClass').value = '';
+            document.getElementById('filterDate').value = '';
+            loadAttendance();
+        }
+    </script>
+</body>
+
+</html>

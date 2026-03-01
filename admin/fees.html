@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fees Management — Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <a href="dashboard.html" class="sidebar-logo">
+                <div class="logo-icon">🏫</div>
+                <div class="logo-text">
+                    <h2>EduManage Pro</h2><span>Admin Panel</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div><a href="dashboard.html" class="nav-item"><span
+                            class="nav-icon">📊</span>Dashboard</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Management</div>
+                    <a href="students.html" class="nav-item"><span class="nav-icon">👩‍🎓</span>Students</a>
+                    <a href="teachers.html" class="nav-item"><span class="nav-icon">👨‍🏫</span>Teachers</a>
+                    <a href="classes.html" class="nav-item"><span class="nav-icon">🏛️</span>Classes & Subjects</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Academics</div>
+                    <a href="attendance.html" class="nav-item"><span class="nav-icon">📋</span>Attendance Reports</a>
+                    <a href="materials.html" class="nav-item"><span class="nav-icon">📚</span>Study Materials</a>
+                    <a href="fees.html" class="nav-item active"><span class="nav-icon">💰</span>Fees Management</a>
+                    <a href="holidays.html" class="nav-item"><span class="nav-icon">📅</span>Holidays</a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user"><span id="sidebarAvatar" class="avatar orange">A</span>
+                    <div class="user-info">
+                        <div class="user-name" id="sidebarUserName">Admin</div>
+                        <div class="user-role" id="sidebarUserRole">admin</div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <div class="main-content">
+            <header class="topbar">
+                <div class="topbar-left"><button class="menu-toggle" id="menuToggle">☰</button>
+                    <div>
+                        <div class="page-title">Fees Management</div>
+                        <div class="page-subtitle" id="topbarDate"></div>
+                    </div>
+                </div>
+                <div class="topbar-right"><button class="btn btn-accent" onclick="openModal('addFeeModal')">+ Add Fee
+                        Record</button></div>
+            </header>
+
+            <div class="page-content">
+                <!-- Summary Cards -->
+                <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+                    <div class="stat-card blue">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-value" id="fTotal">—</div>
+                        <div class="stat-label">Total Amount</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-value" id="fPaid">—</div>
+                        <div class="stat-label">Total Collected</div>
+                    </div>
+                    <div class="stat-card orange">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-value" id="fPending">—</div>
+                        <div class="stat-label">Total Pending</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>💰 Fee Records</h3>
+                        <div class="flex gap-1">
+                            <select id="filterStatus" class="form-control" style="width:auto" onchange="loadFees()">
+                                <option value="">All Status</option>
+                                <option value="Paid">Paid</option>
+                                <option value="Partial">Partial</option>
+                                <option value="Pending">Pending</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body" style="padding-bottom:0">
+                        <div class="filter-bar">
+                            <div class="search-input"><span class="search-icon">🔍</span><input type="text"
+                                    id="searchInput" placeholder="Search student..."></div>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="table" id="feesTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Student</th>
+                                    <th>Class</th>
+                                    <th>Fee Type</th>
+                                    <th>Total</th>
+                                    <th>Paid</th>
+                                    <th>Pending</th>
+                                    <th>Status</th>
+                                    <th>Last Payment</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="feesBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD FEE MODAL -->
+    <div class="modal-overlay" id="addFeeModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add Fee Record</h3><button class="modal-close" onclick="closeModal('addFeeModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="addFeeForm" onsubmit="addFee(event)">
+                    <div class="form-group"><label class="form-label">Student *</label>
+                        <select id="fStudent" class="form-control" required>
+                            <option value="">Select Student</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Fee Type</label>
+                            <select id="fType" class="form-control">
+                                <option value="Tuition Fee">Tuition Fee</option>
+                                <option value="Exam Fee">Exam Fee</option>
+                                <option value="Library Fee">Library Fee</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label class="form-label">Total Amount (₹) *</label><input type="number"
+                                id="fTotal2" class="form-control" required min="0" step="0.01" placeholder="e.g. 15000">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Paid Amount (₹)</label><input type="number"
+                                id="fPaid2" class="form-control" min="0" step="0.01" placeholder="0" value="0"></div>
+                        <div class="form-group"><label class="form-label">Due Date</label><input type="date" id="fDue"
+                                class="form-control"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Payment Method</label>
+                            <select id="fMethod" class="form-control">
+                                <option value="">Select</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Online">Online</option>
+                                <option value="Cheque">Cheque</option>
+                                <option value="DD">DD</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group"><label class="form-label">Notes</label><textarea id="fNotes"
+                            class="form-control" rows="2" placeholder="Optional notes"></textarea></div>
+                    <div class="modal-footer" style="margin:0 -24px -24px;padding:16px 24px">
+                        <button type="button" class="btn btn-outline"
+                            onclick="closeModal('addFeeModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Record</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- UPDATE PAYMENT MODAL -->
+    <div class="modal-overlay" id="updatePayModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Update Payment</h3><button class="modal-close" onclick="closeModal('updatePayModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="updatePayForm" onsubmit="updatePayment(event)">
+                    <input type="hidden" id="upFeeId">
+                    <div class="alert alert-info" id="payInfo">Loading...</div>
+                    <div class="form-group"><label class="form-label">New Paid Amount (₹) *</label><input type="number"
+                            id="upPaid" class="form-control" required min="0" step="0.01"></div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Payment Method</label>
+                            <select id="upMethod" class="form-control">
+                                <option value="Cash">Cash</option>
+                                <option value="Online">Online</option>
+                                <option value="Cheque">Cheque</option>
+                                <option value="DD">DD</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group"><label class="form-label">Notes</label><textarea id="upNotes"
+                            class="form-control" rows="2"></textarea></div>
+                    <div class="modal-footer" style="margin:0 -24px -24px;padding:16px 24px">
+                        <button type="button" class="btn btn-outline"
+                            onclick="closeModal('updatePayModal')">Cancel</button>
+                        <button type="submit" class="btn btn-success">Update Payment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        let allFees = [];
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await checkAuth('admin');
+            if (!user) return;
+            await loadStudentDropdown();
+            await loadFees();
+            initSearch('searchInput', 'feesTable');
+        });
+
+        async function loadStudentDropdown() {
+            const res = await API.get('/api/admin/students');
+            if (!res.success) return;
+            const sel = document.getElementById('fStudent');
+            res.data.forEach(s => { sel.innerHTML += `<option value="${s.id}">${s.name} (${s.roll_no || 'No Roll'})</option>`; });
+        }
+
+        async function loadFees() {
+            const status = document.getElementById('filterStatus').value;
+            let url = '/api/fees';
+            if (status) url += `?status=${status}`;
+            const res = await API.get(url);
+            if (!res.success) return;
+            allFees = res.data;
+            const total = allFees.reduce((a, f) => a + parseFloat(f.total_amount || 0), 0);
+            const paid = allFees.reduce((a, f) => a + parseFloat(f.paid_amount || 0), 0);
+            const pending = allFees.reduce((a, f) => a + parseFloat(f.pending_amount || 0), 0);
+            document.getElementById('fTotal').textContent = formatCurrency(total);
+            document.getElementById('fPaid').textContent = formatCurrency(paid);
+            document.getElementById('fPending').textContent = formatCurrency(pending);
+            renderFees(allFees);
+        }
+
+        function renderFees(data) {
+            const tbody = document.getElementById('feesBody');
+            if (!data.length) { tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">💰</div><h4>No fee records</h4></div></td></tr>'; return; }
+            tbody.innerHTML = data.map((f, i) => `
+        <tr>
+            <td>${i + 1}</td>
+            <td><strong>${f.student_name}</strong><div class="text-sm text-muted">${f.roll_no || ''}</div></td>
+            <td>${f.class_name || '—'}</td>
+            <td>${f.fee_type}</td>
+            <td class="fw-600">${formatCurrency(f.total_amount)}</td>
+            <td style="color:var(--success)">${formatCurrency(f.paid_amount)}</td>
+            <td style="color:var(--danger)">${formatCurrency(f.pending_amount)}</td>
+            <td>${statusBadge(f.status)}</td>
+            <td>${formatDate(f.last_payment_date)}</td>
+            <td>
+                <button class="btn btn-success btn-sm" onclick="openUpdatePay(${JSON.stringify(f).replace(/"/g, '&quot;')})">💳 Pay</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteFee(${f.id})">🗑️</button>
+            </td>
+        </tr>
+    `).join('');
+        }
+
+        async function addFee(e) {
+            e.preventDefault();
+            const res = await API.post('/api/fees', {
+                student_id: document.getElementById('fStudent').value,
+                fee_type: document.getElementById('fType').value,
+                total_amount: document.getElementById('fTotal2').value,
+                paid_amount: document.getElementById('fPaid2').value,
+                due_date: document.getElementById('fDue').value,
+                payment_method: document.getElementById('fMethod').value,
+                notes: document.getElementById('fNotes').value
+            });
+            if (res.success) { showToast('Fee record added!', 'success'); closeModal('addFeeModal'); document.getElementById('addFeeForm').reset(); loadFees(); }
+            else showToast(res.message, 'error');
+        }
+
+        function openUpdatePay(f) {
+            document.getElementById('upFeeId').value = f.id;
+            document.getElementById('upPaid').value = f.paid_amount;
+            document.getElementById('upNotes').value = f.notes || '';
+            document.getElementById('payInfo').innerHTML = `<strong>${f.student_name}</strong> — Total: ${formatCurrency(f.total_amount)} | Remaining: ${formatCurrency(f.pending_amount)}`;
+            openModal('updatePayModal');
+        }
+
+        async function updatePayment(e) {
+            e.preventDefault();
+            const id = document.getElementById('upFeeId').value;
+            const res = await API.put(`/api/fees/${id}`, {
+                paid_amount: document.getElementById('upPaid').value,
+                payment_method: document.getElementById('upMethod').value,
+                notes: document.getElementById('upNotes').value
+            });
+            if (res.success) { showToast('Payment updated!', 'success'); closeModal('updatePayModal'); loadFees(); }
+            else showToast(res.message, 'error');
+        }
+
+        async function deleteFee(id) {
+            const ok = await showConfirm('Delete this fee record? This cannot be undone.', '🗑️ Yes, Delete');
+            if (!ok) return;
+            const res = await API.delete(`/api/fees/${id}`);
+            if (res.success) { showToast('Record deleted.', 'success'); loadFees(); }
+            else showToast(res.message, 'error');
+        }
+
+    </script>
+</body>
+
+</html>

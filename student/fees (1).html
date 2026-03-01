@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fees Status — Student</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <a href="dashboard.html" class="sidebar-logo">
+                <div class="logo-icon">🏫</div>
+                <div class="logo-text">
+                    <h2>EduManage Pro</h2><span>Student Portal</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">My Dashboard</div><a href="dashboard.html" class="nav-item"><span
+                            class="nav-icon">📊</span>Dashboard</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Academics</div>
+                    <a href="attendance.html" class="nav-item"><span class="nav-icon">📋</span>My Attendance</a>
+                    <a href="materials.html" class="nav-item"><span class="nav-icon">📚</span>Study Materials</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Others</div>
+                    <a href="fees.html" class="nav-item active"><span class="nav-icon">💰</span>Fees Status</a>
+                    <a href="holidays.html" class="nav-item"><span class="nav-icon">📅</span>Holidays</a>
+                    <a href="profile.html" class="nav-item"><span class="nav-icon">👤</span>My Profile</a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user"><span id="sidebarAvatar" class="avatar green">S</span>
+                    <div class="user-info">
+                        <div class="user-name" id="sidebarUserName">Student</div>
+                        <div class="user-role" id="sidebarUserRole">student</div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <div class="main-content">
+            <header class="topbar">
+                <div class="topbar-left"><button class="menu-toggle" id="menuToggle">☰</button>
+                    <div>
+                        <div class="page-title">Fees Status</div>
+                        <div class="page-subtitle" id="topbarDate"></div>
+                    </div>
+                </div>
+            </header>
+            <div class="page-content">
+                <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+                    <div class="stat-card blue">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-value" id="fTotal">—</div>
+                        <div class="stat-label">Total Fees</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-value" id="fPaid">—</div>
+                        <div class="stat-label">Paid Amount</div>
+                    </div>
+                    <div class="stat-card orange">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-value" id="fPending">—</div>
+                        <div class="stat-label">Pending Amount</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>💰 Fee Records</h3>
+                    </div>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Fee Type</th>
+                                    <th>Total</th>
+                                    <th>Paid</th>
+                                    <th>Pending</th>
+                                    <th>Due Date</th>
+                                    <th>Last Payment</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="feesBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await checkAuth('student');
+            if (!user) return;
+            const res = await API.get('/api/student/fees');
+            if (!res.success) return;
+            const data = res.data;
+            const total = data.reduce((a, f) => a + parseFloat(f.total_amount || 0), 0);
+            const paid = data.reduce((a, f) => a + parseFloat(f.paid_amount || 0), 0);
+            const pending = data.reduce((a, f) => a + parseFloat(f.pending_amount || 0), 0);
+            document.getElementById('fTotal').textContent = formatCurrency(total);
+            document.getElementById('fPaid').textContent = formatCurrency(paid);
+            document.getElementById('fPending').textContent = formatCurrency(pending);
+            const tbody = document.getElementById('feesBody');
+            if (!data.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">💰</div><h4>No fee records</h4></div></td></tr>'; return; }
+            tbody.innerHTML = data.map((f, i) => `
+        <tr>
+            <td>${i + 1}</td><td><strong>${f.fee_type}</strong></td>
+            <td>${formatCurrency(f.total_amount)}</td>
+            <td style="color:var(--success)">${formatCurrency(f.paid_amount)}</td>
+            <td style="color:var(--danger)">${formatCurrency(f.pending_amount)}</td>
+            <td>${formatDate(f.due_date)}</td>
+            <td>${formatDate(f.last_payment_date)}</td>
+            <td>${statusBadge(f.status)}</td>
+        </tr>
+    `).join('');
+        });
+    </script>
+</body>
+
+</html>

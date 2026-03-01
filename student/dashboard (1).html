@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard — EduManage Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <a href="dashboard.html" class="sidebar-logo">
+                <div class="logo-icon">🏫</div>
+                <div class="logo-text">
+                    <h2>EduManage Pro</h2><span>Student Portal</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Dashboard</div>
+                    <a href="dashboard.html" class="nav-item active"><span class="nav-icon">📊</span>Dashboard</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Academics</div>
+                    <a href="attendance.html" class="nav-item"><span class="nav-icon">📋</span>My Attendance</a>
+                    <a href="fees.html" class="nav-item"><span class="nav-icon">💰</span>My Fees</a>
+                    <a href="profile.html" class="nav-item"><span class="nav-icon">👤</span>My Profile</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Resources</div>
+                    <a href="materials.html" class="nav-item"><span class="nav-icon">📚</span>Study Materials</a>
+                    <a href="holidays.html" class="nav-item"><span class="nav-icon">📅</span>Holidays</a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <span id="sidebarAvatar" class="avatar blue">S</span>
+                    <div class="user-info">
+                        <div class="user-name" id="sidebarUserName">Student</div>
+                        <div class="user-role" id="sidebarUserRole">student</div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="menu-toggle" id="menuToggle">☰</button>
+                    <div>
+                        <div class="page-title">Student Dashboard</div>
+                        <div class="page-subtitle" id="topbarDate"></div>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <a href="materials.html" class="btn btn-accent btn-sm">📚 Study Materials</a>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <!-- Welcome Banner -->
+                <div
+                    style="background:linear-gradient(135deg,#1e3a8a,#3b5fc0);border-radius:16px;padding:24px 28px;margin-bottom:24px;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+                    <div>
+                        <h2 style="font-size:22px;margin-bottom:4px">Welcome back, <span
+                                id="welcomeName">Student</span>! 👩‍🎓</h2>
+                        <p style="opacity:0.85;font-size:14px" id="classInfo">Loading your class info...</p>
+                    </div>
+                    <div style="font-size:52px">📖</div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card green">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-value" id="statPresent">—</div>
+                        <div class="stat-label">Days Present</div>
+                    </div>
+                    <div class="stat-card red">
+                        <div class="stat-icon">❌</div>
+                        <div class="stat-value" id="statAbsent">—</div>
+                        <div class="stat-label">Days Absent</div>
+                    </div>
+                    <div class="stat-card blue">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-value" id="statPct">—%</div>
+                        <div class="stat-label">Attendance %</div>
+                    </div>
+                    <div class="stat-card orange">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-value" id="statFees">—</div>
+                        <div class="stat-label">Pending Fees</div>
+                    </div>
+                    <div class="stat-card cyan">
+                        <div class="stat-icon">📚</div>
+                        <div class="stat-value" id="statMaterials">—</div>
+                        <div class="stat-label">Study Materials</div>
+                    </div>
+                </div>
+
+                <div class="flex gap-2" style="flex-wrap:wrap;align-items:flex-start">
+                    <!-- Quick Actions -->
+                    <div class="card" style="flex:1;min-width:260px">
+                        <div class="card-header">
+                            <h3>⚡ Quick Actions</h3>
+                        </div>
+                        <div class="card-body">
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                                <a href="attendance.html" class="btn btn-primary w-100"
+                                    style="justify-content:center;padding:16px;flex-direction:column;height:auto">
+                                    <span style="font-size:24px">📋</span>My Attendance</a>
+                                <a href="fees.html" class="btn btn-outline w-100"
+                                    style="justify-content:center;padding:16px;flex-direction:column;height:auto">
+                                    <span style="font-size:24px">💰</span>My Fees</a>
+                                <a href="materials.html" class="btn btn-outline w-100"
+                                    style="justify-content:center;padding:16px;flex-direction:column;height:auto">
+                                    <span style="font-size:24px">📚</span>Materials</a>
+                                <a href="profile.html" class="btn btn-outline w-100"
+                                    style="justify-content:center;padding:16px;flex-direction:column;height:auto">
+                                    <span style="font-size:24px">👤</span>My Profile</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attendance Summary -->
+                    <div class="card" style="flex:1;min-width:260px">
+                        <div class="card-header">
+                            <h3>📊 Attendance Overview</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="attendanceBar" style="margin-bottom:12px">
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-muted">Attendance Rate</span>
+                                    <strong id="attPctLabel">0%</strong>
+                                </div>
+                                <div class="progress" style="height:12px">
+                                    <div class="progress-bar green" id="attProgress" style="width:0%"></div>
+                                </div>
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:16px">
+                                <div style="text-align:center;padding:12px;background:#dcfce7;border-radius:10px">
+                                    <div style="font-size:20px;font-weight:800;color:#16a34a" id="miniPresent">0</div>
+                                    <div style="font-size:11px;color:#15803d;font-weight:600">Present</div>
+                                </div>
+                                <div style="text-align:center;padding:12px;background:#fee2e2;border-radius:10px">
+                                    <div style="font-size:20px;font-weight:800;color:#dc2626" id="miniAbsent">0</div>
+                                    <div style="font-size:11px;color:#b91c1c;font-weight:600">Absent</div>
+                                </div>
+                                <div style="text-align:center;padding:12px;background:#dbeafe;border-radius:10px">
+                                    <div style="font-size:20px;font-weight:800;color:#1e40af" id="miniTotal">0</div>
+                                    <div style="font-size:11px;color:#1e3a8a;font-weight:600">Total</div>
+                                </div>
+                            </div>
+                            <a href="attendance.html" class="btn btn-outline w-100"
+                                style="margin-top:14px;justify-content:center">View Full Attendance →</a>
+                        </div>
+                    </div>
+
+                    <!-- Upcoming Holidays -->
+                    <div class="card" style="flex:1;min-width:240px">
+                        <div class="card-header">
+                            <h3>📅 Upcoming Holidays</h3>
+                        </div>
+                        <div class="card-body" id="upcomingHolidays">
+                            <div class="text-muted text-center">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await checkAuth('student');
+            if (!user) return;
+            document.getElementById('welcomeName').textContent = user.name.split(' ')[0];
+            loadStats();
+            loadHolidays();
+        });
+
+        async function loadStats() {
+            const res = await API.get('/api/student/stats');
+            if (!res.success) return;
+            const d = res.data;
+
+            document.getElementById('statPresent').textContent = d.present ?? '—';
+            document.getElementById('statAbsent').textContent = d.absent ?? '—';
+            document.getElementById('statPct').textContent = (d.percentage ?? 0) + '%';
+            document.getElementById('statFees').textContent = formatCurrency(d.pendingFees);
+            document.getElementById('statMaterials').textContent = d.materials ?? '—';
+
+            // progress bar
+            const pct = d.percentage || 0;
+            document.getElementById('attProgress').style.width = pct + '%';
+            document.getElementById('attPctLabel').textContent = pct + '%';
+            document.getElementById('miniPresent').textContent = d.present || 0;
+            document.getElementById('miniAbsent').textContent = d.absent || 0;
+            document.getElementById('miniTotal').textContent = d.totalDays || 0;
+
+            // fetch profile for class info
+            const prof = await API.get('/api/student/profile');
+            if (prof.success && prof.data) {
+                const p = prof.data;
+                document.getElementById('classInfo').textContent =
+                    `Class: ${p.class_name || 'Not assigned'} | Board: ${p.board || '—'} | Medium: ${p.medium || '—'}`;
+            }
+        }
+
+        async function loadHolidays() {
+            const res = await API.get('/api/holidays/upcoming');
+            const el = document.getElementById('upcomingHolidays');
+            if (!res.success || !res.data || !res.data.length) {
+                el.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><h4>No upcoming holidays</h4></div>';
+                return;
+            }
+            el.innerHTML = res.data.map(h => `
+                <div style="padding:10px;background:#f8fafc;border-radius:8px;border-left:3px solid var(--accent);margin-bottom:8px">
+                    <strong style="font-size:13px">${h.name || h.title || 'Holiday'}</strong>
+                    <div class="text-sm text-muted">${formatDate(h.date)}</div>
+                    ${h.description ? `<div class="text-sm text-muted">${h.description}</div>` : ''}
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+
+</html>

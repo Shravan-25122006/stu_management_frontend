@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile — Student</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <a href="dashboard.html" class="sidebar-logo">
+                <div class="logo-icon">🏫</div>
+                <div class="logo-text">
+                    <h2>EduManage Pro</h2><span>Student Portal</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">My Dashboard</div><a href="dashboard.html" class="nav-item"><span
+                            class="nav-icon">📊</span>Dashboard</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Academics</div>
+                    <a href="attendance.html" class="nav-item"><span class="nav-icon">📋</span>My Attendance</a>
+                    <a href="materials.html" class="nav-item"><span class="nav-icon">📚</span>Study Materials</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Others</div>
+                    <a href="fees.html" class="nav-item"><span class="nav-icon">💰</span>Fees Status</a>
+                    <a href="holidays.html" class="nav-item"><span class="nav-icon">📅</span>Holidays</a>
+                    <a href="profile.html" class="nav-item active"><span class="nav-icon">👤</span>My Profile</a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user"><span id="sidebarAvatar" class="avatar green">S</span>
+                    <div class="user-info">
+                        <div class="user-name" id="sidebarUserName">Student</div>
+                        <div class="user-role" id="sidebarUserRole">student</div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <div class="main-content">
+            <header class="topbar">
+                <div class="topbar-left"><button class="menu-toggle" id="menuToggle">☰</button>
+                    <div>
+                        <div class="page-title">My Profile</div>
+                        <div class="page-subtitle" id="topbarDate"></div>
+                    </div>
+                </div>
+            </header>
+            <div class="page-content">
+                <div class="flex gap-2" style="flex-wrap:wrap;align-items:flex-start">
+                    <!-- Profile Card -->
+                    <div class="card" style="flex:1;min-width:260px">
+                        <div class="card-body text-center">
+                            <div id="profileAvatar" class="avatar avatar-lg blue"
+                                style="width:80px;height:80px;font-size:32px;margin:0 auto 16px">S</div>
+                            <h3 id="profileName" style="font-size:20px;font-weight:800">Loading...</h3>
+                            <p id="profileEmail" class="text-muted mb-2"></p>
+                            <span class="badge badge-primary" id="profileClass"></span>
+                            <div
+                                style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:left">
+                                <div style="background:#f8fafc;padding:10px;border-radius:8px">
+                                    <div class="text-sm text-muted">Board</div><strong id="profileBoard">—</strong>
+                                </div>
+                                <div style="background:#f8fafc;padding:10px;border-radius:8px">
+                                    <div class="text-sm text-muted">Medium</div><strong id="profileMedium">—</strong>
+                                </div>
+                                <div style="background:#f8fafc;padding:10px;border-radius:8px">
+                                    <div class="text-sm text-muted">Roll No.</div><strong id="profileRoll">—</strong>
+                                </div>
+                                <div style="background:#f8fafc;padding:10px;border-radius:8px">
+                                    <div class="text-sm text-muted">Gender</div><strong id="profileGender">—</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Edit Profile -->
+                    <div class="card" style="flex:2;min-width:300px">
+                        <div class="card-header">
+                            <h3>✏️ Update Profile</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="msg"></div>
+                            <form id="profileForm" onsubmit="updateProfile(event)">
+                                <div class="form-group"><label class="form-label">Phone Number</label><input type="text"
+                                        id="pPhone" class="form-control" placeholder="Your phone number"></div>
+                                <div class="form-group"><label class="form-label">Parent/Guardian Name</label><input
+                                        type="text" id="pParent" class="form-control" placeholder="Parent name"></div>
+                                <div class="form-group"><label class="form-label">Address</label><textarea id="pAddress"
+                                        class="form-control" rows="3" placeholder="Your home address"></textarea></div>
+                                <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await checkAuth('student');
+            if (!user) return;
+            const res = await API.get('/api/student/profile');
+            if (!res.success) return;
+            const s = res.data;
+            document.getElementById('profileName').textContent = s.name;
+            document.getElementById('profileEmail').textContent = s.email;
+            document.getElementById('profileClass').textContent = s.class_name || 'No Class Assigned';
+            document.getElementById('profileBoard').textContent = s.board || '—';
+            document.getElementById('profileMedium').textContent = s.medium || '—';
+            document.getElementById('profileRoll').textContent = s.roll_no || '—';
+            document.getElementById('profileGender').textContent = s.gender || '—';
+            document.getElementById('pPhone').value = s.phone || '';
+            document.getElementById('pParent').value = s.parent_name || '';
+            document.getElementById('pAddress').value = s.address || '';
+            // Avatar initials
+            const initials = s.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            document.getElementById('profileAvatar').textContent = initials;
+        });
+
+        async function updateProfile(e) {
+            e.preventDefault();
+            const res = await API.put('/api/student/profile', {
+                phone: document.getElementById('pPhone').value,
+                parent_name: document.getElementById('pParent').value,
+                address: document.getElementById('pAddress').value
+            });
+            const msgEl = document.getElementById('msg');
+            if (res.success) { msgEl.innerHTML = '<div class="alert alert-success">✅ Profile updated successfully!</div>'; setTimeout(() => msgEl.innerHTML = '', 3000); }
+            else msgEl.innerHTML = `<div class="alert alert-danger">❌ ${res.message}</div>`;
+        }
+    </script>
+</body>
+
+</html>

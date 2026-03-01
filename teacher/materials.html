@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Materials — Teacher</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <a href="dashboard.html" class="sidebar-logo">
+                <div class="logo-icon">🏫</div>
+                <div class="logo-text">
+                    <h2>EduManage Pro</h2><span>Teacher Portal</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Dashboard</div><a href="dashboard.html" class="nav-item"><span
+                            class="nav-icon">📊</span>Dashboard</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Class Management</div>
+                    <a href="attendance.html" class="nav-item"><span class="nav-icon">📋</span>Mark Attendance</a>
+                    <a href="students.html" class="nav-item"><span class="nav-icon">👩‍🎓</span>My Students</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Resources</div>
+                    <a href="materials.html" class="nav-item active"><span class="nav-icon">📚</span>Study Materials</a>
+                    <a href="holidays.html" class="nav-item"><span class="nav-icon">📅</span>Holidays</a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user"><span id="sidebarAvatar" class="avatar cyan">T</span>
+                    <div class="user-info">
+                        <div class="user-name" id="sidebarUserName">Teacher</div>
+                        <div class="user-role" id="sidebarUserRole">teacher</div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <div class="main-content">
+            <header class="topbar">
+                <div class="topbar-left"><button class="menu-toggle" id="menuToggle">☰</button>
+                    <div>
+                        <div class="page-title">Study Materials</div>
+                        <div class="page-subtitle" id="topbarDate"></div>
+                    </div>
+                </div>
+                <div class="topbar-right"><button class="btn btn-accent" onclick="openModal('uploadModal')">📤 Upload
+                        Material</button></div>
+            </header>
+
+            <div class="page-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>📚 My Uploaded Materials</h3>
+                        <select id="filterClass" class="form-control" style="width:auto" onchange="loadMaterials()">
+                            <option value="">All Classes</option>
+                        </select>
+                    </div>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Title</th>
+                                    <th>Class</th>
+                                    <th>File</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="materialsBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UPLOAD MODAL -->
+    <div class="modal-overlay" id="uploadModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Upload Study Material</h3><button class="modal-close" onclick="closeModal('uploadModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="uploadForm" onsubmit="uploadMaterial(event)" enctype="multipart/form-data">
+                    <div class="form-group"><label class="form-label">Title *</label><input type="text" id="mTitle"
+                            class="form-control" required placeholder="e.g. Chapter 5 Notes - Trigonometry"></div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Class</label><select id="mClass"
+                                class="form-control" required>
+                                <option value="">Select Class</option>
+                            </select></div>
+                    </div>
+                    <div class="form-group"><label class="form-label">Description</label><textarea id="mDesc"
+                            class="form-control" rows="2" placeholder="Brief description..."></textarea></div>
+                    <div class="form-group">
+                        <label class="form-label">File * (PDF, DOC, PPT, Image — max 50MB)</label>
+                        <input type="file" id="mFile" class="form-control" required
+                            accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png">
+                    </div>
+                    <div class="modal-footer" style="margin:0 -24px -24px;padding:16px 24px">
+                        <button type="button" class="btn btn-outline"
+                            onclick="closeModal('uploadModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="uploadBtn">📤 Upload</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        let myUserId = null;
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await checkAuth('teacher');
+            if (!user) return;
+            myUserId = user.id;
+
+            // Load assigned classes
+            const res = await API.get('/api/teacher/classes');
+            if (res.success) {
+                res.data.forEach(c => {
+                    const opt = `<option value="${c.id}">${c.name} | ${c.board} | ${c.medium}</option>`;
+                    document.getElementById('mClass').innerHTML += opt;
+                    document.getElementById('filterClass').innerHTML += opt;
+                });
+            }
+            loadMaterials();
+        });
+
+        async function loadMaterials() {
+            const classId = document.getElementById('filterClass').value;
+            let url = '/api/materials';
+            if (classId) url += `?class_id=${classId}`;
+            const res = await API.get(url);
+            const tbody = document.getElementById('materialsBody');
+            if (!res.success || !res.data.length) {
+                tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">📚</div><h4>No materials found</h4></div></td></tr>';
+                return;
+            }
+            const icons = { 'application/pdf': '📕', 'application/msword': '📄', 'image/jpeg': '🖼️', 'image/png': '🖼️', 'video/mp4': '🎬', default: '📎' };
+
+            // Filter to show only ones uploaded by this teacher (optional, or show all for their assigned classes)
+            // Let's just show all for the assigned class, but indicate if they can delete it
+            // Actually, we can just show everything from the query
+
+            tbody.innerHTML = res.data.map((m, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td><strong>${m.title}</strong>${m.description ? `<div class="text-sm text-muted">${m.description.substring(0, 50)}</div>` : ''}</td>
+                    <td>${m.class_name || '—'}</td>
+                    <td><span style="font-size:18px">${icons[m.file_type] || icons.default}</span> <span class="text-sm">${m.file_name}</span></td>
+                    <td>${formatDate(m.uploaded_at)}</td>
+                    <td>
+                        <a href="${window.API_BASE}/api/materials/download/${m.id}" class="btn btn-primary btn-sm" target="_blank">⬇️</a>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function uploadMaterial(e) {
+            e.preventDefault();
+            const btn = document.getElementById('uploadBtn');
+            btn.disabled = true; btn.textContent = 'Uploading...';
+            const fd = new FormData();
+            fd.append('title', document.getElementById('mTitle').value);
+            fd.append('description', document.getElementById('mDesc').value);
+            fd.append('class_id', document.getElementById('mClass').value);
+            fd.append('file', document.getElementById('mFile').files[0]);
+
+            // Using our newly added API.postForm
+            const res = await API.postForm('/api/materials', fd);
+            btn.disabled = false; btn.textContent = '📤 Upload';
+
+            if (res.success) {
+                showToast('Material uploaded!', 'success');
+                closeModal('uploadModal');
+                document.getElementById('uploadForm').reset();
+                loadMaterials();
+            } else {
+                showToast(res.message, 'error');
+            }
+        }
+        document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); }));
+    </script>
+</body>
+
+</html>

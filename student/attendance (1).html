@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Attendance — Student</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <a href="dashboard.html" class="sidebar-logo">
+                <div class="logo-icon">🏫</div>
+                <div class="logo-text">
+                    <h2>EduManage Pro</h2><span>Student Portal</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">My Dashboard</div><a href="dashboard.html" class="nav-item"><span
+                            class="nav-icon">📊</span>Dashboard</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Academics</div>
+                    <a href="attendance.html" class="nav-item active"><span class="nav-icon">📋</span>My Attendance</a>
+                    <a href="materials.html" class="nav-item"><span class="nav-icon">📚</span>Study Materials</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Others</div>
+                    <a href="fees.html" class="nav-item"><span class="nav-icon">💰</span>Fees Status</a>
+                    <a href="holidays.html" class="nav-item"><span class="nav-icon">📅</span>Holidays</a>
+                    <a href="profile.html" class="nav-item"><span class="nav-icon">👤</span>My Profile</a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user"><span id="sidebarAvatar" class="avatar green">S</span>
+                    <div class="user-info">
+                        <div class="user-name" id="sidebarUserName">Student</div>
+                        <div class="user-role" id="sidebarUserRole">student</div>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <div class="main-content">
+            <header class="topbar">
+                <div class="topbar-left"><button class="menu-toggle" id="menuToggle">☰</button>
+                    <div>
+                        <div class="page-title">My Attendance</div>
+                        <div class="page-subtitle" id="topbarDate"></div>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <select id="filterMonth" class="form-control" style="width:auto" onchange="loadAttendance()">
+                        <option value="">All Time</option>
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                    <select id="filterYear" class="form-control" style="width:auto"
+                        onchange="loadAttendance()"></select>
+                </div>
+            </header>
+            <div class="page-content">
+                <!-- Summary -->
+                <div class="attendance-stats">
+                    <div class="att-stat present">
+                        <div class="att-num" id="cPresent">0</div>
+                        <div class="att-lbl">Present</div>
+                    </div>
+                    <div class="att-stat absent">
+                        <div class="att-num" id="cAbsent">0</div>
+                        <div class="att-lbl">Absent</div>
+                    </div>
+                    <div class="att-stat late">
+                        <div class="att-num" id="cLate">0</div>
+                        <div class="att-lbl">Late</div>
+                    </div>
+                    <div class="att-stat leave">
+                        <div class="att-num" id="cLeave">0</div>
+                        <div class="att-lbl">Leave</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>📋 Attendance Records</h3><span id="attTotal" class="badge badge-primary">0 records</span>
+                    </div>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Date</th>
+                                    <th>Class</th>
+                                    <th>Status</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await checkAuth('student');
+            if (!user) return;
+            // Populate year dropdown
+            const yearSel = document.getElementById('filterYear');
+            const thisYear = new Date().getFullYear();
+            for (let y = thisYear; y >= thisYear - 3; y--) { yearSel.innerHTML += `<option value="${y}">${y}</option>`; }
+            // Default to current month
+            document.getElementById('filterMonth').value = new Date().getMonth() + 1;
+            loadAttendance();
+        });
+
+        async function loadAttendance() {
+            const month = document.getElementById('filterMonth').value;
+            const year = document.getElementById('filterYear').value;
+            let url = '/api/student/attendance';
+            if (month && year) url += `?month=${month}&year=${year}`;
+            const res = await API.get(url);
+            if (!res.success) return;
+            document.getElementById('cPresent').textContent = res.summary.Present || 0;
+            document.getElementById('cAbsent').textContent = res.summary.Absent || 0;
+            document.getElementById('cLate').textContent = res.summary.Late || 0;
+            document.getElementById('cLeave').textContent = res.summary.Leave || 0;
+            document.getElementById('attTotal').textContent = res.data.length + ' records';
+            const tbody = document.getElementById('attBody');
+            if (!res.data.length) { tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📋</div><h4>No records found</h4></div></td></tr>'; return; }
+            tbody.innerHTML = res.data.map((a, i) => `
+        <tr><td>${i + 1}</td><td>${formatDate(a.date)}</td><td>${a.class_name || '—'}</td><td>${statusBadge(a.status)}</td><td>${a.remarks || '—'}</td></tr>
+    `).join('');
+        }
+    </script>
+</body>
+
+</html>
