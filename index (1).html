@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduManage Pro — School & Coaching Management System</title>
+    <meta name="description"
+        content="Complete School & Coaching Institute Management System for GSEB, CBSE boards. Manage students, teachers, attendance, fees, and study materials.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --primary: #1e3a8a;
+            --primary-dark: #1e2d6b;
+            --accent: #f97316;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --bg: #f0f4ff
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            background: #fff;
+            overflow-x: hidden
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit
+        }
+
+        /* NAV */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 0 5%;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06)
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .nav-brand .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #1e3a8a, #3b5fc0);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3)
+        }
+
+        .nav-brand h1 {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--primary)
+        }
+
+        .nav-brand span {
+            font-size: 11px;
+            color: var(--text-muted);
+            display: block;
+            margin-top: -2px
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 28px
+        }
+
+        .nav-links a {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: color 0.2s
+        }
+
+        .nav-links a:hover {
+            color: var(--primary)
+        }
+
+        .btn-nav {
+            padding: 9px 22px;
+            background: var(--primary);
+            color: #fff;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            transition: all 0.2s
+        }
+
+        .btn-nav:hover {
+            background: #3b5fc0;
+            transform: translateY(-1px)
+        }
+
+        .nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer
+        }
+
+        /* HERO */
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #1e40af 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 100px 5% 60px;
+            position: relative;
+            overflow: hidden
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(249, 115, 22, 0.15);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            padding: 6px 16px;
+            border-radius: 100px;
+            color: #fb923c;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 28px
+        }
+
+        .hero h1 {
+            font-size: clamp(36px, 6vw, 72px);
+            font-weight: 900;
+            color: #fff;
+            line-height: 1.1;
+            margin-bottom: 22px;
+            letter-spacing: -1px
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, #f97316, #fb923c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text
+        }
+
+        .hero p {
+            font-size: clamp(15px, 2vw, 18px);
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 620px;
+            margin: 0 auto 36px;
+            line-height: 1.7
+        }
+
+        .hero-btns {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 60px
+        }
+
+        .btn-hero-primary {
+            padding: 14px 32px;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .btn-hero-primary:hover {
+            background: #ea6e00;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(249, 115, 22, 0.4)
+        }
+
+        .btn-hero-outline {
+            padding: 14px 32px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600
+        }
+
+        .btn-hero-outline:hover {
+            background: rgba(255, 255, 255, 0.15)
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .hero-stat {
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center
+        }
+
+        .hero-stat strong {
+            display: block;
+            font-size: 32px;
+            font-weight: 900;
+            color: #fff
+        }
+
+        .hero-stat span {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6)
+        }
+
+        /* FEATURES */
+        .section {
+            padding: 80px 5%
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 52px
+        }
+
+        .section-label {
+            display: inline-block;
+            background: #dbeafe;
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 100px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 12px
+        }
+
+        .section-header h2 {
+            font-size: clamp(28px, 4vw, 42px);
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 12px;
+            letter-spacing: -0.5px
+        }
+
+        .section-header p {
+            font-size: 16px;
+            color: var(--text-muted);
+            max-width: 520px;
+            margin: 0 auto
+        }
+
+        .bg-alt {
+            background: var(--bg)
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px
+        }
+
+        .feature-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 28px;
+            border: 1.5px solid var(--border);
+            transition: all 0.3s;
+            text-align: center;
+            position: relative;
+            overflow: hidden
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            opacity: 0;
+            transition: opacity 0.3s
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 50px rgba(30, 58, 138, 0.12);
+            border-color: var(--primary)
+        }
+
+        .feature-card:hover::before {
+            opacity: 1
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 18px
+        }
+
+        .feature-card h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px
+        }
+
+        .feature-card p {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.6
+        }
+
+        /* ROLES */
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px
+        }
+
+        .role-card {
+            border-radius: 20px;
+            padding: 36px 28px;
+            text-align: center;
+            color: #fff;
+            position: relative;
+            overflow: hidden
+        }
+
+        .role-card.admin {
+            background: linear-gradient(135deg, #1e3a8a, #3b5fc0)
+        }
+
+        .role-card.teacher {
+            background: linear-gradient(135deg, #065f46, #059669)
+        }
+
+        .role-card.student {
+            background: linear-gradient(135deg, #7c2d12, #ea580c)
+        }
+
+        .role-card .role-icon {
+            font-size: 52px;
+            margin-bottom: 16px
+        }
+
+        .role-card h3 {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 10px
+        }
+
+        .role-card p {
+            font-size: 13px;
+            opacity: 0.85;
+            line-height: 1.6;
+            margin-bottom: 20px
+        }
+
+        .role-card ul {
+            text-align: left;
+            font-size: 13px;
+            opacity: 0.9;
+            list-style: none
+        }
+
+        .role-card ul li {
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .role-card ul li::before {
+            content: '✓';
+            width: 18px;
+            height: 18px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            flex-shrink: 0
+        }
+
+        /* BOARDS */
+        .boards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px
+        }
+
+        .board-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 24px;
+            text-align: center;
+            border: 2px solid var(--border);
+            transition: all 0.3s
+        }
+
+        .board-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(30, 58, 138, 0.1)
+        }
+
+        .board-icon {
+            font-size: 40px;
+            margin-bottom: 10px
+        }
+
+        .board-card h4 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 4px
+        }
+
+        .board-card p {
+            font-size: 12px;
+            color: var(--text-muted)
+        }
+
+        /* CTA */
+        .cta {
+            background: linear-gradient(135deg, #1e3a8a, #1e40af);
+            padding: 80px 5%;
+            text-align: center;
+            color: #fff
+        }
+
+        .cta h2 {
+            font-size: clamp(28px, 4vw, 44px);
+            font-weight: 800;
+            margin-bottom: 14px
+        }
+
+        .cta p {
+            font-size: 16px;
+            opacity: 0.8;
+            margin-bottom: 32px;
+            max-width: 480px;
+            margin-left: auto;
+            margin-right: auto
+        }
+
+        /* FOOTER */
+        footer {
+            background: #0f172a;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 40px 5%;
+            text-align: center;
+            font-size: 13px
+        }
+
+        footer strong {
+            color: #fff;
+            font-weight: 700
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            margin-top: 12px
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            transition: color 0.2s
+        }
+
+        .footer-links a:hover {
+            color: #fff
+        }
+
+        @media(max-width:1024px) {
+
+            .features-grid,
+            .roles-grid {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .boards-grid {
+                grid-template-columns: repeat(2, 1fr)
+            }
+        }
+
+        @media(max-width:768px) {
+            .nav-links {
+                display: none
+            }
+
+            .nav-toggle {
+                display: block
+            }
+
+            .features-grid,
+            .roles-grid,
+            .boards-grid {
+                grid-template-columns: 1fr
+            }
+
+            .hero {
+                padding: 90px 5% 50px
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="nav">
+        <div class="nav-brand">
+            <div class="logo">🏫</div>
+            <div>
+                <h1>EduManage Pro</h1>
+                <span>School & Coaching Management</span>
+            </div>
+        </div>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#roles">For Who</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+            <a href="login.html" class="btn-nav"
+                style="background:transparent;color:var(--primary);border:1.5px solid var(--primary)">🔐 Login</a>
+            <a href="signup.html" class="btn-nav">📝 Sign Up</a>
+        </div>
+        <button class="nav-toggle" onclick="toggleNav()">☰</button>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div>
+            <div class="hero-badge">🎓 Complete School & Coaching Management Platform</div>
+            <h1>Manage Your <span>School Smarter</span><br>Not Harder</h1>
+            <p>A complete management solution for schools and coaching institutes. Manage students, teachers,
+                attendance, fees, and study materials — all in one place.</p>
+            <div class="hero-btns">
+                <a href="login.html" class="btn-hero-primary">🔐 Login Now</a>
+                <a href="signup.html" class="btn-hero-outline"
+                    style="background:#fff;color:var(--primary);border-color:#fff">📝 Sign Up Now</a>
+                <a href="network.html" class="btn-hero-outline">📱 Mobile Access</a>
+            </div>
+            <div class="hero-stats">
+                <div class="hero-stat"><strong>3</strong><span>User Roles</span></div>
+                <div class="hero-stat"><strong>4</strong><span>Boards/Classes</span></div>
+                <div class="hero-stat"><strong>10+</strong><span>Modules</span></div>
+                <div class="hero-stat"><strong>100%</strong><span>Mobile Friendly</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="section" id="features">
+        <div class="section-header">
+            <div class="section-label">Features</div>
+            <h2>Everything You Need to Run Your Institute</h2>
+            <p>Powerful tools for admins, teachers, and students all under one roof.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📋</div>
+                <h3>Attendance System</h3>
+                <p>Mark class-wise and date-wise attendance for students and teachers. View detailed reports instantly.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <h3>Fees Management</h3>
+                <p>Track total fees, paid amounts, and pending dues. Auto-calculate status: Paid, Partial, or Pending.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📚</div>
+                <h3>Study Materials</h3>
+                <p>Upload PDFs, notes, and resources. Students can download class-specific materials anytime.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📅</div>
+                <h3>Holiday Calendar</h3>
+                <p>Manage academic holidays. Students and teachers see upcoming holidays on their dashboards.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👩‍🎓</div>
+                <h3>Student Management</h3>
+                <p>Add, edit, delete student records. Manage profiles with class, board, medium, and parent details.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👨‍🏫</div>
+                <h3>Teacher Management</h3>
+                <p>Full teacher profile management. Assign subjects, track attendance and uploaded materials.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>Secure Authentication</h3>
+                <p>Role-based login for Admin, Teacher, and Student with bcrypt password hashing and sessions.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Dashboard Analytics</h3>
+                <p>Visual stats on student count, attendance percentages, fee collection, and more.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3>Mobile Friendly</h3>
+                <p>Fully responsive design. Works perfectly on phones, tablets, and desktops.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- BOARDS & CLASSES -->
+    <section class="section bg-alt">
+        <div class="section-header">
+            <div class="section-label">Boards & Classes</div>
+            <h2>Supporting All Major Boards & Competitive Exams</h2>
+        </div>
+        <div class="boards-grid">
+            <div class="board-card">
+                <div class="board-icon">📘</div>
+                <h4>GSEB — 10th</h4>
+                <p>English & Gujarati Medium</p>
+            </div>
+            <div class="board-card">
+                <div class="board-icon">📗</div>
+                <h4>GSEB — 12th</h4>
+                <p>English & Gujarati Medium</p>
+            </div>
+            <div class="board-card">
+                <div class="board-icon">📙</div>
+                <h4>CBSE — 10th & 12th</h4>
+                <p>English Medium</p>
+            </div>
+            <div class="board-card">
+                <div class="board-icon">🔬</div>
+                <h4>JEE & NEET</h4>
+                <p>Competitive Exam Prep</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ROLES -->
+    <section class="section" id="roles">
+        <div class="section-header">
+            <div class="section-label">User Roles</div>
+            <h2>Tailored Experience for Everyone</h2>
+        </div>
+        <div class="roles-grid">
+            <div class="role-card admin">
+                <div class="role-icon">🛡️</div>
+                <h3>Admin</h3>
+                <p>Complete control over the institute. Manage all data and configurations.</p>
+                <ul>
+                    <li>Add / Edit / Delete Students</li>
+                    <li>Add / Edit / Delete Teachers</li>
+                    <li>Manage Classes & Subjects</li>
+                    <li>Upload Study Materials</li>
+                    <li>Manage Fees Records</li>
+                    <li>Add Academic Holidays</li>
+                    <li>View All Attendance Reports</li>
+                </ul>
+            </div>
+            <div class="role-card teacher">
+                <div class="role-icon">👨‍🏫</div>
+                <h3>Teacher</h3>
+                <p>Manage classes effectively and keep student records up to date.</p>
+                <ul>
+                    <li>Mark Student Attendance</li>
+                    <li>Mark Own Attendance</li>
+                    <li>Upload Study Materials</li>
+                    <li>View Assigned Class Students</li>
+                    <li>View Holiday Calendar</li>
+                    <li>Dashboard with Quick Stats</li>
+                </ul>
+            </div>
+            <div class="role-card student">
+                <div class="role-icon">👩‍🎓</div>
+                <h3>Student</h3>
+                <p>Stay informed about your academics, fees, and class materials.</p>
+                <ul>
+                    <li>View Personal Attendance</li>
+                    <li>Download Study Materials</li>
+                    <li>Check Fees Status</li>
+                    <li>View Holiday Calendar</li>
+                    <li>Manage Profile</li>
+                    <li>Attendance Percentage Tracker</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+        <h2>Ready to Transform Your Institute?</h2>
+        <p>Join thousands of schools using EduManage Pro to streamline their operations.</p>
+        <a href="login.html" class="btn-hero-primary" style="display:inline-flex;">🚀 Login Now</a>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <strong>EduManage Pro</strong> — School & Coaching Management System
+        <div class="footer-links">
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+            <a href="login.html">Login</a>
+        </div>
+        <p style="margin-top:12px;font-size:12px;opacity:0.5">© 2026 EduManage Pro. All rights reserved. | GSEB · CBSE |
+            English · Gujarati Medium</p>
+    </footer>
+
+    <script>
+        function toggleNav() {
+            const links = document.querySelector('.nav-links');
+            links.style.display = links.style.display === 'flex' ? 'none' : 'flex';
+            links.style.flexDirection = 'column';
+            links.style.position = 'fixed';
+            links.style.top = '72px';
+            links.style.left = '0';
+            links.style.right = '0';
+            links.style.background = '#fff';
+            links.style.padding = '20px';
+            links.style.gap = '16px';
+            links.style.boxShadow = '0 8px 24px rgba(0,0,0,0.1)';
+            links.style.zIndex = '99';
+        }
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', e => {
+                e.preventDefault();
+                document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+
+</html>
